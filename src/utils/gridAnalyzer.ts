@@ -136,20 +136,23 @@ export class GridAnalyzer {
 
   private categorizeWords(): void {
     for (const wordPos of this.foundWords) {
-      wordPos.category = this.getWordCategory(wordPos.word);
+      wordPos.category = this.getWordCategory(wordPos.word, wordPos.direction);
     }
   }
 
-  private getWordCategory(word: string): 'hour' | 'minute' | 'military' | 'connector' {
-    const minuteWords = ['FIVE', 'TEN', 'FIFTEEN', 'TWENTY', 'TWENTYFIVE', 'THIRTY', 
-                         'THIRTYFIVE', 'FORTY', 'FORTYFIVE', 'FIFTY', 'FIFTYFIVE'];
+  private getWordCategory(word: string, direction: 'horizontal' | 'vertical'): 'hour' | 'minute' | 'military' | 'connector' {
+    // Special military/connector words
     const militaryWords = ['HUNDRED', 'HOURS'];
     const connectorWords = ['OH', 'OCLOCK'];
     
-    if (minuteWords.includes(word)) return 'minute';
     if (militaryWords.includes(word)) return 'military';
     if (connectorWords.includes(word)) return 'connector';
-    return 'hour';
+    
+    // Categorize based on direction: horizontal = hour, vertical = minute
+    if (direction === 'horizontal') return 'hour';
+    if (direction === 'vertical') return 'minute';
+    
+    return 'hour'; // fallback
   }
 
   public printAnalysis(): void {

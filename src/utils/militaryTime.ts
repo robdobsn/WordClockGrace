@@ -1,5 +1,11 @@
+export interface MilitaryTimeWord {
+  word: string;
+  category: 'hour' | 'minute' | 'military';
+}
+
 export interface MilitaryTimeWords {
   words: string[];
+  wordsWithCategory: MilitaryTimeWord[];
   description: string;
 }
 
@@ -161,6 +167,7 @@ export function convertToMilitaryTime(hours: number, minutes: number, layoutName
   }
   
   const words: string[] = [];
+  const wordsWithCategory: MilitaryTimeWord[] = [];
   let description = '';
   
   // Choose word mappings based on layout
@@ -182,6 +189,9 @@ export function convertToMilitaryTime(hours: number, minutes: number, layoutName
   const hourWords = hourWordsMap[adjustedHours];
   if (hourWords) {
     words.push(...hourWords);
+    hourWords.forEach(word => {
+      wordsWithCategory.push({ word, category: 'hour' });
+    });
   }
   
   // Handle minutes
@@ -190,8 +200,12 @@ export function convertToMilitaryTime(hours: number, minutes: number, layoutName
     const zeroMinuteWords = minuteWordsMap[0];
     if (zeroMinuteWords && zeroMinuteWords.length > 0) {
       words.push(...zeroMinuteWords);
+      zeroMinuteWords.forEach(word => {
+        wordsWithCategory.push({ word, category: 'military' });
+      });
     } else {
       words.push('HUNDRED');
+      wordsWithCategory.push({ word: 'HUNDRED', category: 'military' });
     }
     description = `${hourWords?.join(' ')} hundred`;
   } else {
@@ -199,6 +213,9 @@ export function convertToMilitaryTime(hours: number, minutes: number, layoutName
     const minuteWords = minuteWordsMap[adjustedMinutes];
     if (minuteWords && minuteWords.length > 0) {
       words.push(...minuteWords);
+      minuteWords.forEach(word => {
+        wordsWithCategory.push({ word, category: 'minute' });
+      });
     }
     
     const hourDesc = hourWords?.join(' ') || '';
@@ -208,6 +225,7 @@ export function convertToMilitaryTime(hours: number, minutes: number, layoutName
   
   return {
     words,
+    wordsWithCategory,
     description
   };
 }
