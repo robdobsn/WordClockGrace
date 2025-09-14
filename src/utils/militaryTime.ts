@@ -3,36 +3,36 @@ export interface MilitaryTimeWords {
   description: string;
 }
 
-const HOUR_WORDS: Record<number, string> = {
-  0: 'ZERO',
-  1: 'ONE',
-  2: 'TWO', 
-  3: 'THREE',
-  4: 'FOUR',
-  5: 'FIVE',
-  6: 'SIX',
-  7: 'SEVEN',
-  8: 'EIGHT',
-  9: 'NINE',
-  10: 'TEN',
-  11: 'ELEVEN',
-  12: 'TWELVE',
-  13: 'THIRTEEN',
-  14: 'FOURTEEN',
-  15: 'FIFTEEN',
-  16: 'SIXTEEN',
-  17: 'SEVENTEEN',
-  18: 'EIGHTEEN',
-  19: 'NINETEEN',
-  20: 'TWENTY',
-  21: 'TWENTYONE',
-  22: 'TWENTYTWO',
-  23: 'TWENTYTHREE'
+const HOUR_WORDS: Record<number, string[]> = {
+  0: ['ZERO'],
+  1: ['ONE'],
+  2: ['TWO'], 
+  3: ['THREE'],
+  4: ['FOUR'],
+  5: ['FIVE'],
+  6: ['SIX'],
+  7: ['SEVEN'],
+  8: ['EIGHT'],
+  9: ['NINE'],
+  10: ['TEN'],
+  11: ['ELEVEN'],
+  12: ['TWELVE'],
+  13: ['THIRTEEN'],
+  14: ['FOURTEEN'],
+  15: ['FIFTEEN'],
+  16: ['SIXTEEN'],
+  17: ['SEVENTEEN'],
+  18: ['EIGHTEEN'],
+  19: ['NINETEEN'],
+  20: ['TWENTY'],
+  21: ['TWENTY', 'ONE'],
+  22: ['TWENTY', 'TWO'],
+  23: ['TWENTY', 'THREE']
 };
 
 const MINUTE_WORDS: Record<number, string[]> = {
   0: [], // No minutes for "hundred hours"
-  5: ['OH', 'FIVE'],
+  5: ['FIVE'],
   10: ['TEN'],
   15: ['FIFTEEN'],
   20: ['TWENTY'],
@@ -61,31 +61,27 @@ export function convertToMilitaryTime(hours: number, minutes: number): MilitaryT
   const words: string[] = [];
   let description = '';
   
-  // Get hour word
-  const hourWord = HOUR_WORDS[adjustedHours];
-  if (hourWord) {
-    words.push(hourWord);
+  // Get hour words (can be multiple for 20-23)
+  const hourWords = HOUR_WORDS[adjustedHours];
+  if (hourWords) {
+    words.push(...hourWords);
   }
   
   // Handle minutes
   if (adjustedMinutes === 0) {
-    // "Zero hundred hours", "Eleven hundred hours", etc.
+    // "Zero hundred", "Eleven hundred", etc.
     words.push('HUNDRED');
-    words.push('HOURS');
-    description = `${hourWord} hundred hours`;
+    description = `${hourWords?.join(' ')} hundred`;
   } else {
-    // "Eleven oh five hours", "Eleven fifteen hours", etc.
+    // "Eleven five", "Eleven fifteen", etc.
     const minuteWords = MINUTE_WORDS[adjustedMinutes];
     if (minuteWords && minuteWords.length > 0) {
       words.push(...minuteWords);
     }
-    words.push('HOURS');
     
-    if (adjustedMinutes < 10) {
-      description = `${hourWord} oh ${adjustedMinutes.toString().padStart(2, '0')} hours`;
-    } else {
-      description = `${hourWord} ${adjustedMinutes} hours`;
-    }
+    const hourDesc = hourWords?.join(' ') || '';
+    const minuteDesc = minuteWords?.join(' ') || '';
+    description = `${hourDesc} ${minuteDesc}`;
   }
   
   return {

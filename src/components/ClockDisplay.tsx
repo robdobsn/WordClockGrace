@@ -1,6 +1,7 @@
 import React from 'react';
 import { ClockLayout, FontSettings, WordPosition } from '../types/layout';
 import { convertToMilitaryTime } from '../utils/militaryTime';
+import { generateMilitaryCondensedGrid } from '../utils/gridGenerator';
 
 interface ClockDisplayProps {
   layout: ClockLayout;
@@ -16,7 +17,12 @@ interface LetterGridProps {
 }
 
 function createLetterGrid(layout: ClockLayout): string[][] {
-  // Initialize grid with empty spaces
+  // Use pre-generated grid for military-condensed layout
+  if (layout.name === 'Military Condensed') {
+    return generateMilitaryCondensedGrid();
+  }
+  
+  // Initialize grid with empty spaces for other layouts
   const grid: string[][] = Array(layout.gridHeight)
     .fill(null)
     .map(() => Array(layout.gridWidth).fill(' '));

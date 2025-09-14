@@ -29,7 +29,7 @@ export function useLayout() {
 
   useEffect(() => {
     // Initialize with available layouts
-    setAvailableLayouts(['military-standard', 'compact-vertical']);
+    setAvailableLayouts(['military-standard', 'compact-vertical', 'military-condensed']);
     
     // Load default layout
     loadLayout('military-standard');
