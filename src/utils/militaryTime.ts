@@ -61,6 +61,92 @@ const CROSSWORD_MINUTE_WORDS: Record<number, string[]> = {
   55: ['FIFTYFIVE']
 };
 
+// GraceGPT specific word mappings
+const GRACEGPT_HOUR_WORDS: Record<number, string[]> = {
+  0: ['ZERO'],
+  1: ['ONE'],
+  2: ['TWO'], 
+  3: ['THREE'],
+  4: ['FOUR'],
+  5: ['FIVE'],
+  6: ['SIX'],
+  7: ['SEVEN'],
+  8: ['EIGHT'],
+  9: ['NINE'],
+  10: ['TEN'],
+  11: ['ELEVEN'],
+  12: ['TWELVE'],
+  13: ['THIR', 'TEEN'],
+  14: ['FOUR', 'TEEN'],
+  15: ['FIF', 'TEEN'],
+  16: ['SIX', 'TEEN'],
+  17: ['SEVEN', 'TEEN'],
+  18: ['EIGHT', 'TEEN'],
+  19: ['NINE', 'TEEN'],
+  20: ['TWENTY'],
+  21: ['TWENTY', 'ONE'],
+  22: ['TWENTY', 'TWO'],
+  23: ['TWENTY', 'THREE']
+};
+
+const GRACEGPT_MINUTE_WORDS: Record<number, string[]> = {
+  0: ['HUNDRED'],
+  5: ['FIVE'],
+  10: ['TEN'],
+  15: ['FIF', 'TEEN'],
+  20: ['TWENTY'],
+  25: ['TWENTY', 'FIVE'],
+  30: ['THIRTY'],
+  35: ['THIRTY', 'FIVE'],
+  40: ['FORTY'],
+  45: ['FORTY', 'FIVE'],
+  50: ['FIFTY'],
+  55: ['FIFTY', 'FIVE']
+};
+
+// Fragment-based word mappings for auto-generated layouts
+const FRAGMENT_HOUR_WORDS: Record<number, string[]> = {
+  0: ['ZERO'],
+  1: ['ONE'],
+  2: ['TWO'], 
+  3: ['THREE'],
+  4: ['FOUR'],
+  5: ['FIVE'],
+  6: ['SIX'],
+  7: ['SEVEN'],
+  8: ['EIGHT'],
+  9: ['NINE'],
+  10: ['TEN'],
+  11: ['ELEVEN'],
+  12: ['TWELVE'],
+  13: ['THIR', 'TEEN'],
+  14: ['FOUR', 'TEEN'],
+  15: ['FIF', 'TEEN'],
+  16: ['SIX', 'TEEN'],
+  17: ['SEVEN', 'TEEN'],
+  18: ['EIGHT', 'TEEN'],
+  19: ['NINE', 'TEEN'],
+  20: ['TWENTY'],
+  21: ['TWENTY', 'ONE'],
+  22: ['TWENTY', 'TWO'],
+  23: ['TWENTY', 'THREE']
+};
+
+const FRAGMENT_MINUTE_WORDS: Record<number, string[]> = {
+  0: ['HUNDRED'],
+  5: ['FIVE'],
+  10: ['TEN'],
+  15: ['FIFTEEN'],
+  20: ['TWENTY'],
+  25: ['TWENTY', 'FIVE'],
+  30: ['THIRTY'],
+  35: ['THIRTY', 'FIVE'],
+  40: ['FORTY'],
+  45: ['FORTY', 'FIVE'],
+  50: ['FIFTY'],
+  55: ['FIFTY', 'FIVE']
+};
+
 export function convertToMilitaryTime(hours: number, minutes: number, layoutName?: string): MilitaryTimeWords {
   // Round minutes to nearest 5
   const roundedMinutes = Math.round(minutes / 5) * 5;
@@ -77,19 +163,36 @@ export function convertToMilitaryTime(hours: number, minutes: number, layoutName
   const words: string[] = [];
   let description = '';
   
-  // Choose minute words based on layout
-  const minuteWordsMap = layoutName === 'Crossword One' ? CROSSWORD_MINUTE_WORDS : MINUTE_WORDS;
+  // Choose word mappings based on layout
+  let hourWordsMap = HOUR_WORDS;
+  let minuteWordsMap = MINUTE_WORDS;
   
-  // Get hour words (can be multiple for 20-23)
-  const hourWords = HOUR_WORDS[adjustedHours];
+  if (layoutName === 'Crossword One') {
+    minuteWordsMap = CROSSWORD_MINUTE_WORDS;
+  } else if (layoutName === 'GraceGPT' || layoutName === 'GraceGPT2') {
+    hourWordsMap = GRACEGPT_HOUR_WORDS;
+    minuteWordsMap = GRACEGPT_MINUTE_WORDS;
+  } else if (layoutName === 'Auto Layout' || layoutName === 'Updated Layout') {
+    // Use fragment-based mappings for auto-generated layouts
+    hourWordsMap = FRAGMENT_HOUR_WORDS;
+    minuteWordsMap = FRAGMENT_MINUTE_WORDS;
+  }
+  
+  // Get hour words (can be multiple for certain hours)
+  const hourWords = hourWordsMap[adjustedHours];
   if (hourWords) {
     words.push(...hourWords);
   }
   
   // Handle minutes
   if (adjustedMinutes === 0) {
-    // "Zero hundred", "Eleven hundred", etc.
-    words.push('HUNDRED');
+    // For GraceGPT, 0 minutes uses "HUNDRED", for others use "HUNDRED"
+    const zeroMinuteWords = minuteWordsMap[0];
+    if (zeroMinuteWords && zeroMinuteWords.length > 0) {
+      words.push(...zeroMinuteWords);
+    } else {
+      words.push('HUNDRED');
+    }
     description = `${hourWords?.join(' ')} hundred`;
   } else {
     // "Eleven five", "Eleven fifteen", etc.

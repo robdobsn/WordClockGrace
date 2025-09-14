@@ -1,6 +1,44 @@
 import { useState, useEffect } from 'react';
 import { ClockLayout } from '../types/layout';
 
+// Function to discover available layouts dynamically
+async function discoverLayouts(): Promise<string[]> {
+  try {
+    // This is a simplified approach - in a real app you might use a backend API
+    // For now, we'll try to load known layout files and handle 404s gracefully
+    const knownLayouts = [
+      'military-standard',
+      'compact-vertical', 
+      'military-condensed',
+      'crossword-one',
+      'gracegpt',
+      'gracegpt2',
+      'auto-layout',
+      'updated-layout'
+    ];
+    
+    const availableLayouts: string[] = [];
+    
+    for (const layoutName of knownLayouts) {
+      try {
+        const response = await fetch(`/layouts/${layoutName}.json`);
+        if (response.ok) {
+          availableLayouts.push(layoutName);
+        }
+      } catch (error) {
+        // Layout doesn't exist, skip it
+        console.debug(`Layout ${layoutName} not found`);
+      }
+    }
+    
+    return availableLayouts;
+  } catch (error) {
+    console.error('Error discovering layouts:', error);
+    // Fallback to basic layouts
+    return ['military-standard', 'compact-vertical', 'military-condensed', 'crossword-one'];
+  }
+}
+
 export function useLayout() {
   const [layout, setLayout] = useState<ClockLayout | null>(null);
   const [availableLayouts, setAvailableLayouts] = useState<string[]>([]);
@@ -28,11 +66,25 @@ export function useLayout() {
   };
 
   useEffect(() => {
-    // Initialize with available layouts
-    setAvailableLayouts(['military-standard', 'compact-vertical', 'military-condensed', 'crossword-one']);
+    // Discover available layouts dynamically
+    const initializeLayouts = async () => {
+      try {
+        const layouts = await discoverLayouts();
+        setAvailableLayouts(layouts);
+        
+        // Load default layout (first available one)
+        if (layouts.length > 0) {
+          loadLayout(layouts[0]);
+        }
+      } catch (error) {
+        console.error('Failed to initialize layouts:', error);
+        // Fallback
+        setAvailableLayouts(['military-standard']);
+        loadLayout('military-standard');
+      }
+    };
     
-    // Load default layout
-    loadLayout('military-standard');
+    initializeLayouts();
   }, []);
 
   return {

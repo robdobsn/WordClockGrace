@@ -1,7 +1,7 @@
 import React from 'react';
 import { ClockLayout, FontSettings, WordPosition } from '../types/layout';
 import { convertToMilitaryTime } from '../utils/militaryTime';
-import { generateMilitaryCondensedGrid, generateCrosswordGrid } from '../utils/gridGenerator';
+import { generateMilitaryCondensedGrid, generateCrosswordGrid, generateGraceGPTGrid, generateGraceGPT2Grid, generateAutoLayoutGrid } from '../utils/gridGenerator';
 
 interface ClockDisplayProps {
   layout: ClockLayout;
@@ -25,6 +25,26 @@ function createLetterGrid(layout: ClockLayout): string[][] {
   // Use crossword grid generator for crossword layouts
   if (layout.name === 'Crossword One') {
     return generateCrosswordGrid(layout);
+  }
+  
+  // Use GraceGPT grid generator for GraceGPT layout
+  if (layout.name === 'GraceGPT') {
+    return generateGraceGPTGrid();
+  }
+  
+  // Use GraceGPT2 grid generator for GraceGPT2 layout
+  if (layout.name === 'GraceGPT2') {
+    return generateGraceGPT2Grid();
+  }
+  
+  // Use Auto Layout grid generator for Auto Layout
+  if (layout.name === 'Auto Layout') {
+    return generateAutoLayoutGrid();
+  }
+  
+  // Use Auto Layout grid generator for Updated Layout (same grid)
+  if (layout.name === 'Updated Layout') {
+    return generateAutoLayoutGrid();
   }
   
   // Initialize grid with empty spaces for other layouts
