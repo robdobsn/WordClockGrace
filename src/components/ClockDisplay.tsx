@@ -110,56 +110,50 @@ function findWordWithCategoryPriority(layout: ClockLayout, word: string, preferr
     return [];
   }
   
-  // For minute category, prefer vertical direction among minute-categorized words
+  // For minute category, find words categorized as 'minute' (which should be vertical due to gridAnalyzer logic)
   if (preferredCategory === 'minute') {
     const minuteWords = wordInstances.filter(w => w.category === 'minute');
     if (minuteWords.length > 0) {
-      // First try to find a vertical minute word
-      const verticalMinute = minuteWords.find(w => w.direction === 'vertical');
-      if (verticalMinute) {
-        return getPositionsFromWordInstance(verticalMinute, word);
-      }
-      // Fallback to first minute word
       return getPositionsFromWordInstance(minuteWords[0], word);
     }
+    // If no minute word found, return empty
+    return [];
   }
   
-  // For hour category, prefer horizontal direction among hour-categorized words
+  // For hour category, find words categorized as 'hour' (which should be horizontal due to gridAnalyzer logic)
   if (preferredCategory === 'hour') {
     const hourWords = wordInstances.filter(w => w.category === 'hour');
     if (hourWords.length > 0) {
-      // First try to find a horizontal hour word
-      const horizontalHour = hourWords.find(w => w.direction === 'horizontal');
-      if (horizontalHour) {
-        return getPositionsFromWordInstance(horizontalHour, word);
-      }
-      // Fallback to first hour word
       return getPositionsFromWordInstance(hourWords[0], word);
     }
+    // If no hour word found, return empty
+    return [];
   }
   
   // For connector category, prefer vertical direction
   if (preferredCategory === 'connector') {
+    const verticalConnectorWords = wordInstances.filter(w => w.category === 'connector' && w.direction === 'vertical');
+    if (verticalConnectorWords.length > 0) {
+      return getPositionsFromWordInstance(verticalConnectorWords[0], word);
+    }
+    // Fallback to any connector if no vertical found
     const connectorWords = wordInstances.filter(w => w.category === 'connector');
     if (connectorWords.length > 0) {
-      // First try to find a vertical connector
-      const verticalConnector = connectorWords.find(w => w.direction === 'vertical');
-      if (verticalConnector) {
-        return getPositionsFromWordInstance(verticalConnector, word);
-      }
-      // Fallback to first connector word
       return getPositionsFromWordInstance(connectorWords[0], word);
+    }
+    return [];
+  }
+  
+  // For military category, use any direction
+  if (preferredCategory === 'military') {
+    const militaryWords = wordInstances.filter(w => w.category === 'military');
+    if (militaryWords.length > 0) {
+      return getPositionsFromWordInstance(militaryWords[0], word);
     }
   }
   
-  // For military category or other fallback
-  const categoryWords = wordInstances.filter(w => w.category === preferredCategory);
-  if (categoryWords.length > 0) {
-    return getPositionsFromWordInstance(categoryWords[0], word);
-  }
-  
-  // Final fallback to first instance
-  return getPositionsFromWordInstance(wordInstances[0], word);
+  // No valid word found for the preferred category and direction constraints
+  return [];
 }
 
 // Helper function to get positions from a word instance

@@ -135,7 +135,7 @@
       "startRow": 0,
       "startCol": 0,
       "direction": "vertical",
-      "category": "hour"
+      "category": "minute"
     },
     {
       "word": "FIFTEEN",
@@ -149,7 +149,7 @@
       "startRow": 0,
       "startCol": 2,
       "direction": "vertical",
-      "category": "hour"
+      "category": "minute"
     },
     {
       "word": "THIRTY",
@@ -184,7 +184,7 @@
       "startRow": 6,
       "startCol": 9,
       "direction": "vertical",
-      "category": "hour"
+      "category": "minute"
     },
     {
       "word": "HUNDRED",

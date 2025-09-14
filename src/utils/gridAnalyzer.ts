@@ -157,19 +157,28 @@ export class GridAnalyzer {
     // Other connector words
     if (word === 'OCLOCK') return 'connector';
     
-    // Categorize based on word meaning, not direction
-    // Hour words (numbers 0-23 and fragments)
-    const hourWords = ['ZERO', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 
-                       'TEN', 'ELEVEN', 'TWELVE', 'THIR', 'FIF', 'TWENTY', 'TEEN'];
-    
-    // Pure minute words (only used for minutes)
+    // Categorize based on word meaning AND direction for ambiguous words
+    // Pure minute words (only used for minutes regardless of direction)
     const pureMinuteWords = ['FIFTEEN', 'THIRTY', 'FORTY', 'FIFTY'];
+    
+    // Ambiguous words that depend on direction for categorization
+    const ambiguousWords = ['FIVE', 'TEN', 'TWENTY'];
+    
+    // Pure hour words (only used for hours regardless of direction)  
+    const pureHourWords = ['ZERO', 'ONE', 'TWO', 'THREE', 'FOUR', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 
+                          'ELEVEN', 'TWELVE', 'THIR', 'FIF', 'TEEN'];
     
     // Check pure minute words first (these are never hours)
     if (pureMinuteWords.includes(word)) return 'minute';
     
-    // Most other words are hours
-    if (hourWords.includes(word)) return 'hour';
+    // For ambiguous words, use direction to determine category
+    if (ambiguousWords.includes(word)) {
+      if (direction === 'horizontal') return 'hour';
+      if (direction === 'vertical') return 'minute';
+    }
+    
+    // Pure hour words
+    if (pureHourWords.includes(word)) return 'hour';
     
     return 'hour'; // fallback - most words are hours
   }
