@@ -1,7 +1,7 @@
 import React from 'react';
 import { ClockLayout, FontSettings, WordPosition } from '../types/layout';
 import { convertToMilitaryTime } from '../utils/militaryTime';
-import { generateMilitaryCondensedGrid } from '../utils/gridGenerator';
+import { generateMilitaryCondensedGrid, generateCrosswordGrid } from '../utils/gridGenerator';
 
 interface ClockDisplayProps {
   layout: ClockLayout;
@@ -20,6 +20,11 @@ function createLetterGrid(layout: ClockLayout): string[][] {
   // Use pre-generated grid for military-condensed layout
   if (layout.name === 'Military Condensed') {
     return generateMilitaryCondensedGrid();
+  }
+  
+  // Use crossword grid generator for crossword layouts
+  if (layout.name === 'Crossword One') {
+    return generateCrosswordGrid(layout);
   }
   
   // Initialize grid with empty spaces for other layouts
@@ -121,7 +126,7 @@ const ClockDisplay: React.FC<ClockDisplayProps> = ({
   minutes, 
   fontSettings 
 }) => {
-  const militaryTime = convertToMilitaryTime(hours, minutes);
+  const militaryTime = convertToMilitaryTime(hours, minutes, layout.name);
   
   return (
     <div className="flex flex-col items-center space-y-4">

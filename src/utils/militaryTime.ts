@@ -45,7 +45,23 @@ const MINUTE_WORDS: Record<number, string[]> = {
   55: ['FIFTY', 'FIVE']
 };
 
-export function convertToMilitaryTime(hours: number, minutes: number): MilitaryTimeWords {
+// Alternative minute words for crossword layout (using composite words)
+const CROSSWORD_MINUTE_WORDS: Record<number, string[]> = {
+  0: [], // No minutes for "hundred hours"
+  5: ['FIVE'],
+  10: ['TEN'],
+  15: ['FIFTEEN'],
+  20: ['TWENTY'],
+  25: ['TWENTYFIVE'],
+  30: ['THIRTY'],
+  35: ['THIRTYFIVE'],
+  40: ['FORTY'],
+  45: ['FORTYFIVE'],
+  50: ['FIFTY'],
+  55: ['FIFTYFIVE']
+};
+
+export function convertToMilitaryTime(hours: number, minutes: number, layoutName?: string): MilitaryTimeWords {
   // Round minutes to nearest 5
   const roundedMinutes = Math.round(minutes / 5) * 5;
   
@@ -61,6 +77,9 @@ export function convertToMilitaryTime(hours: number, minutes: number): MilitaryT
   const words: string[] = [];
   let description = '';
   
+  // Choose minute words based on layout
+  const minuteWordsMap = layoutName === 'Crossword One' ? CROSSWORD_MINUTE_WORDS : MINUTE_WORDS;
+  
   // Get hour words (can be multiple for 20-23)
   const hourWords = HOUR_WORDS[adjustedHours];
   if (hourWords) {
@@ -74,7 +93,7 @@ export function convertToMilitaryTime(hours: number, minutes: number): MilitaryT
     description = `${hourWords?.join(' ')} hundred`;
   } else {
     // "Eleven five", "Eleven fifteen", etc.
-    const minuteWords = MINUTE_WORDS[adjustedMinutes];
+    const minuteWords = minuteWordsMap[adjustedMinutes];
     if (minuteWords && minuteWords.length > 0) {
       words.push(...minuteWords);
     }
