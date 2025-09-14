@@ -153,6 +153,45 @@ const FRAGMENT_MINUTE_WORDS: Record<number, string[]> = {
   55: ['FIFTY', 'FIVE']
 };
 
+// Helper function to check if a layout has specific words
+function layoutHasWord(layoutName: string, word: string): boolean {
+  // This would need to be enhanced to actually check the layout data
+  // For now, we'll use layout name patterns to determine capabilities
+  if (layoutName === 'Gracegpt4') {
+    // gracegpt4 has OH but no ZERO
+    return word === 'OH';
+  }
+  // Most other layouts have ZERO
+  return word === 'ZERO';
+}
+
+// Helper function to get appropriate zero representation
+function getZeroWords(layoutName: string): { words: string[], category: string } {
+  if (layoutName === 'Gracegpt4') {
+    // Check if we have multiple OH words for double-oh representation
+    return { words: ['OH', 'OH'], category: 'hour' }; // For 00:xx = OH OH xx
+  }
+  return { words: ['ZERO'], category: 'hour' };
+}
+
+// Helper function to get OH prefix for single-digit hours (01-09)
+function getOHPrefix(layoutName: string, hour: number): { words: string[], category: string } | null {
+  if (layoutName === 'Gracegpt4' && hour >= 1 && hour <= 9) {
+    // For 01-09, prepend OH (e.g., 02:20 = OH TWO TWENTY)
+    return { words: ['OH'], category: 'hour' };
+  }
+  return null;
+}
+
+// Helper function to get appropriate minute connector
+function getMinuteConnector(layoutName: string, minute: number): { words: string[], category: string } | null {
+  if (layoutName === 'Gracegpt4' && minute === 5) {
+    // For xx:05 = OH FIVE (using vertical OH as connector)
+    return { words: ['OH'], category: 'connector' };
+  }
+  return null;
+}
+
 export function convertToMilitaryTime(hours: number, minutes: number, layoutName?: string): MilitaryTimeWords {
   // Round minutes to nearest 5
   const roundedMinutes = Math.round(minutes / 5) * 5;
@@ -179,19 +218,43 @@ export function convertToMilitaryTime(hours: number, minutes: number, layoutName
   } else if (layoutName === 'GraceGPT' || layoutName === 'GraceGPT2') {
     hourWordsMap = GRACEGPT_HOUR_WORDS;
     minuteWordsMap = GRACEGPT_MINUTE_WORDS;
-  } else if (layoutName === 'Auto Layout' || layoutName === 'Updated Layout') {
+  } else if (layoutName === 'Auto Layout' || layoutName === 'Updated Layout' || layoutName === 'Gracegpt4') {
     // Use fragment-based mappings for auto-generated layouts
     hourWordsMap = FRAGMENT_HOUR_WORDS;
     minuteWordsMap = FRAGMENT_MINUTE_WORDS;
   }
   
   // Get hour words (can be multiple for certain hours)
-  const hourWords = hourWordsMap[adjustedHours];
-  if (hourWords) {
-    words.push(...hourWords);
-    hourWords.forEach(word => {
-      wordsWithCategory.push({ word, category: 'hour' });
+  let hourWords = hourWordsMap[adjustedHours];
+  let allHourWords: string[] = [];
+  
+  // Handle zero hour specially for layouts with OH
+  if (adjustedHours === 0) {
+    const zeroRepresentation = getZeroWords(layoutName || '');
+    allHourWords = zeroRepresentation.words;
+    words.push(...allHourWords);
+    allHourWords.forEach(word => {
+      wordsWithCategory.push({ word, category: zeroRepresentation.category as 'hour' });
     });
+  } else {
+    // Check for OH prefix for single-digit hours (01-09)
+    const ohPrefix = getOHPrefix(layoutName || '', adjustedHours);
+    if (ohPrefix) {
+      words.push(...ohPrefix.words);
+      allHourWords.push(...ohPrefix.words);
+      ohPrefix.words.forEach(word => {
+        wordsWithCategory.push({ word, category: ohPrefix.category as 'hour' });
+      });
+    }
+    
+    // Add the main hour words
+    if (hourWords) {
+      words.push(...hourWords);
+      allHourWords.push(...hourWords);
+      hourWords.forEach(word => {
+        wordsWithCategory.push({ word, category: 'hour' });
+      });
+    }
   }
   
   // Handle minutes
@@ -207,8 +270,17 @@ export function convertToMilitaryTime(hours: number, minutes: number, layoutName
       words.push('HUNDRED');
       wordsWithCategory.push({ word: 'HUNDRED', category: 'military' });
     }
-    description = `${hourWords?.join(' ')} hundred`;
+    description = `${allHourWords.join(' ')} hundred`;
   } else {
+    // Check for special minute connectors first
+    const minuteConnector = getMinuteConnector(layoutName || '', adjustedMinutes);
+    if (minuteConnector) {
+      words.push(...minuteConnector.words);
+      minuteConnector.words.forEach(word => {
+        wordsWithCategory.push({ word, category: minuteConnector.category as 'connector' });
+      });
+    }
+    
     // "Eleven five", "Eleven fifteen", etc.
     const minuteWords = minuteWordsMap[adjustedMinutes];
     if (minuteWords && minuteWords.length > 0) {
@@ -218,9 +290,10 @@ export function convertToMilitaryTime(hours: number, minutes: number, layoutName
       });
     }
     
-    const hourDesc = hourWords?.join(' ') || '';
+    const hourDesc = allHourWords.join(' ');
+    const connectorDesc = minuteConnector ? minuteConnector.words.join(' ') + ' ' : '';
     const minuteDesc = minuteWords?.join(' ') || '';
-    description = `${hourDesc} ${minuteDesc}`;
+    description = `${hourDesc} ${connectorDesc}${minuteDesc}`;
   }
   
   return {

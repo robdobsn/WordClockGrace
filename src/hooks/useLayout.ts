@@ -13,6 +13,7 @@ async function discoverLayouts(): Promise<string[]> {
       'crossword-one',
       'gracegpt',
       'gracegpt2',
+      'gracegpt4',
       'auto-layout',
       'updated-layout'
     ];

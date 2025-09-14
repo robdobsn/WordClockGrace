@@ -6,12 +6,12 @@ const path = require('path');
 // Specific horizontal words to search for
 const HORIZONTAL_WORDS = [
   'THIR', 'SIX', 'THREE', 'EIGHT', 'ZERO', 'FIF', 'FIVE', 'TEN', 
-  'NINE', 'FOUR', 'SEVEN', 'ONE', 'TWO', 'TEEN'
+  'NINE', 'FOUR', 'SEVEN', 'ONE', 'TWO', 'ELEVEN', 'TWELVE', 'TEEN', 'OH', 'TWENTY'
 ];
 
 // Specific vertical words to search for  
 const VERTICAL_WORDS = [
-  'TWENTY', 'FIVE', 'THIRTY', 'FORTY', 'FIFTY', 'FIFTEEN', 'HUNDRED'
+  'TWENTY', 'FIVE', 'THIRTY', 'FORTY', 'FIFTY', 'FIFTEEN', 'HUNDRED', 'OH', 'TEN'
 ];
 
 class GridAnalyzer {
@@ -108,7 +108,7 @@ class GridAnalyzer {
 
   categorizeWords() {
     for (const wordPos of this.foundWords) {
-      wordPos.category = this.getWordCategory(wordPos.word);
+      wordPos.category = this.getWordCategory(wordPos.word, wordPos.direction);
     }
     
     // Remove duplicates (same word at same position)
@@ -126,14 +126,38 @@ class GridAnalyzer {
     this.foundWords = uniqueWords;
   }
 
-  getWordCategory(word) {
-    // Words that can be minutes when vertical
-    const minuteWords = ['TWENTY', 'FIVE', 'THIRTY', 'FORTY', 'FIFTY', 'FIFTEEN'];
-    const militaryWords = ['HUNDRED'];
+  getWordCategory(word, direction) {
+    // Special military/connector words
+    const militaryWords = ['HUNDRED', 'HOURS'];
     
     if (militaryWords.includes(word)) return 'military';
-    if (minuteWords.includes(word)) return 'minute';
-    return 'hour';
+    
+    // OH can serve different purposes based on direction and context
+    if (word === 'OH') {
+      // Horizontal OH can represent zero hour or connector for minutes
+      if (direction === 'horizontal') return 'hour'; // Can be used as zero
+      // Vertical OH is typically used as connector for minutes (OH FIVE)
+      if (direction === 'vertical') return 'connector';
+    }
+    
+    // Other connector words
+    if (word === 'OCLOCK') return 'connector';
+    
+    // Categorize based on word meaning, not direction
+    // Hour words (numbers 0-23 and fragments) - NOTE: Some words can be both hour and minute
+    const hourWords = ['ZERO', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 
+                       'TEN', 'ELEVEN', 'TWELVE', 'THIR', 'FIF', 'TWENTY', 'TEEN'];
+    
+    // Pure minute words (only used for minutes)
+    const pureMinuteWords = ['FIFTEEN', 'THIRTY', 'FORTY', 'FIFTY', 'HUNDRED'];
+    
+    // Check pure minute words first (these are never hours)
+    if (pureMinuteWords.includes(word)) return 'minute';
+    
+    // Most other words are hours
+    if (hourWords.includes(word)) return 'hour';
+    
+    return 'hour'; // fallback - most words are hours
   }
 
   printAnalysis() {

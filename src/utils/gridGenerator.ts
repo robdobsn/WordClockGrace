@@ -53,6 +53,9 @@ export function generateGraceGPT2Grid(): string[][] {
   return gridRows.map(row => row.split(''));
 }
 
+// Note: GraceGPT4 grid is now generated dynamically from JSON word positions
+// No hardcoded grid needed - it uses the same approach as Auto Layout
+
 // Generate the Auto Layout grid as specified
 export function generateAutoLayoutGrid(): string[][] {
   const gridRows = [

@@ -143,16 +143,35 @@ export class GridAnalyzer {
   private getWordCategory(word: string, direction: 'horizontal' | 'vertical'): 'hour' | 'minute' | 'military' | 'connector' {
     // Special military/connector words
     const militaryWords = ['HUNDRED', 'HOURS'];
-    const connectorWords = ['OH', 'OCLOCK'];
     
     if (militaryWords.includes(word)) return 'military';
-    if (connectorWords.includes(word)) return 'connector';
     
-    // Categorize based on direction: horizontal = hour, vertical = minute
-    if (direction === 'horizontal') return 'hour';
-    if (direction === 'vertical') return 'minute';
+    // OH can serve different purposes based on direction and context
+    if (word === 'OH') {
+      // Horizontal OH can represent zero hour or connector for minutes
+      if (direction === 'horizontal') return 'hour'; // Can be used as zero
+      // Vertical OH is typically used as connector for minutes (OH FIVE)
+      if (direction === 'vertical') return 'connector';
+    }
     
-    return 'hour'; // fallback
+    // Other connector words
+    if (word === 'OCLOCK') return 'connector';
+    
+    // Categorize based on word meaning, not direction
+    // Hour words (numbers 0-23 and fragments)
+    const hourWords = ['ZERO', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 
+                       'TEN', 'ELEVEN', 'TWELVE', 'THIR', 'FIF', 'TWENTY', 'TEEN'];
+    
+    // Pure minute words (only used for minutes)
+    const pureMinuteWords = ['FIFTEEN', 'THIRTY', 'FORTY', 'FIFTY'];
+    
+    // Check pure minute words first (these are never hours)
+    if (pureMinuteWords.includes(word)) return 'minute';
+    
+    // Most other words are hours
+    if (hourWords.includes(word)) return 'hour';
+    
+    return 'hour'; // fallback - most words are hours
   }
 
   public printAnalysis(): void {

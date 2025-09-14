@@ -43,8 +43,8 @@ function createLetterGrid(layout: ClockLayout): string[][] {
     return generateGraceGPT2Grid();
   }
   
-  // For Auto Layout and Updated Layout, use the JSON word positions if available
-  if ((layout.name === 'Auto Layout' || layout.name === 'Updated Layout') && layout.words.length > 0) {
+  // For Auto Layout, Updated Layout, and Gracegpt4, use the JSON word positions if available
+  if ((layout.name === 'Auto Layout' || layout.name === 'Updated Layout' || layout.name === 'Gracegpt4') && layout.words.length > 0) {
     // Use the word positions from the JSON layout
     const grid: string[][] = Array(layout.gridHeight)
       .fill(null)
@@ -72,6 +72,13 @@ function createLetterGrid(layout: ClockLayout): string[][] {
     return generateAutoLayoutGrid();
   }
   
+  // For Gracegpt4, if no words data, create empty grid
+  if (layout.name === 'Gracegpt4') {
+    return Array(layout.gridHeight || 11)
+      .fill(null)
+      .map(() => Array(layout.gridWidth || 11).fill(' '));
+  }
+  
   // Initialize grid with empty spaces for other layouts
   const grid: string[][] = Array(layout.gridHeight)
     .fill(null)
@@ -95,7 +102,7 @@ function createLetterGrid(layout: ClockLayout): string[][] {
 }
 
 // Helper function to find words using category-based priority
-function findWordWithCategoryPriority(layout: ClockLayout, word: string, preferredCategory: 'hour' | 'minute' | 'military'): Array<{row: number, col: number}> {
+function findWordWithCategoryPriority(layout: ClockLayout, word: string, preferredCategory: 'hour' | 'minute' | 'military' | 'connector'): Array<{row: number, col: number}> {
   // Find all instances of the word in the layout
   const wordInstances = layout.words.filter(w => w.word === word);
   
@@ -131,7 +138,21 @@ function findWordWithCategoryPriority(layout: ClockLayout, word: string, preferr
     }
   }
   
-  // For military category or fallback
+  // For connector category, prefer vertical direction
+  if (preferredCategory === 'connector') {
+    const connectorWords = wordInstances.filter(w => w.category === 'connector');
+    if (connectorWords.length > 0) {
+      // First try to find a vertical connector
+      const verticalConnector = connectorWords.find(w => w.direction === 'vertical');
+      if (verticalConnector) {
+        return getPositionsFromWordInstance(verticalConnector, word);
+      }
+      // Fallback to first connector word
+      return getPositionsFromWordInstance(connectorWords[0], word);
+    }
+  }
+  
+  // For military category or other fallback
   const categoryWords = wordInstances.filter(w => w.category === preferredCategory);
   if (categoryWords.length > 0) {
     return getPositionsFromWordInstance(categoryWords[0], word);
@@ -155,9 +176,9 @@ function getPositionsFromWordInstance(wordInstance: any, word: string): Array<{r
   return positions;
 }
 
-function getLetterPositions(layout: ClockLayout, word: string, preferredCategory?: 'hour' | 'minute' | 'military'): Array<{row: number, col: number}> {
+function getLetterPositions(layout: ClockLayout, word: string, preferredCategory?: 'hour' | 'minute' | 'military' | 'connector'): Array<{row: number, col: number}> {
   // For layouts that support categories, use category-based priority
-  if (preferredCategory && (layout.name === 'Auto Layout' || layout.name === 'Updated Layout')) {
+  if (preferredCategory && (layout.name === 'Auto Layout' || layout.name === 'Updated Layout' || layout.name === 'Gracegpt4')) {
     return findWordWithCategoryPriority(layout, word, preferredCategory);
   }
   
@@ -304,7 +325,7 @@ const ClockDisplay: React.FC<ClockDisplayProps> = ({
         </p>
       </div>
       
-      {(layout.name === 'Auto Layout' || layout.name === 'Updated Layout') ? (
+      {(layout.name === 'Auto Layout' || layout.name === 'Updated Layout' || layout.name === 'Gracegpt4') ? (
         <CategorizedLetterGrid 
           layout={layout}
           activeWordsWithCategory={militaryTime.wordsWithCategory}
