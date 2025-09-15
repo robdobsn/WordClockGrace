@@ -272,8 +272,35 @@ export function convertToMilitaryTime(hours: number, minutes: number, layoutName
   }
   
   // Handle minutes
-  if (adjustedMinutes === 0) {
-    // For GraceGPT, 0 minutes uses "HUNDRED", for others use "HUNDRED"
+  if (adjustedHours === 0) {
+    // Special case: ALL 00:xx times use "ZERO HUNDRED" format
+    // Always add HUNDRED for 00:xx times
+    const zeroMinuteWords = minuteWordsMap[0];
+    if (zeroMinuteWords && zeroMinuteWords.length > 0) {
+      words.push(...zeroMinuteWords);
+      zeroMinuteWords.forEach(word => {
+        wordsWithCategory.push({ word, category: 'military' });
+      });
+    } else {
+      words.push('HUNDRED');
+      wordsWithCategory.push({ word: 'HUNDRED', category: 'military' });
+    }
+    
+    // Add minute words if not 00:00
+    if (adjustedMinutes > 0) {
+      const minuteWords = minuteWordsMap[adjustedMinutes];
+      if (minuteWords && minuteWords.length > 0) {
+        words.push(...minuteWords);
+        minuteWords.forEach(word => {
+          wordsWithCategory.push({ word, category: 'minute' });
+        });
+      }
+    }
+    
+    const minuteDesc = adjustedMinutes > 0 ? ` ${minuteWordsMap[adjustedMinutes]?.join(' ') || ''}` : '';
+    description = `${allHourWords.join(' ')} hundred${minuteDesc}`;
+  } else if (adjustedMinutes === 0) {
+    // For other hours with 0 minutes, use "HUNDRED"
     const zeroMinuteWords = minuteWordsMap[0];
     if (zeroMinuteWords && zeroMinuteWords.length > 0) {
       words.push(...zeroMinuteWords);
@@ -286,6 +313,7 @@ export function convertToMilitaryTime(hours: number, minutes: number, layoutName
     }
     description = `${allHourWords.join(' ')} hundred`;
   } else {
+    // For all other times (01:xx, 02:xx, etc. with minutes > 0)
     // Check for special minute connectors first
     const minuteConnector = getMinuteConnector(layoutMetadata, adjustedMinutes);
     if (minuteConnector) {
