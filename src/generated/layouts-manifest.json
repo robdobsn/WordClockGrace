@@ -1,5 +1,5 @@
 {
-  "generated": "2025-09-15T03:14:27.895Z",
+  "generated": "2025-09-15T03:16:48.090Z",
   "layouts": [
     {
       "name": "auto-layout",
@@ -232,6 +232,25 @@
       "hasCategories": true
     },
     {
+      "name": "graceopt3",
+      "displayName": "Graceopt3",
+      "description": "Generated from C:\\Users\\rob\\Documents\\rdev\\WordClockGrace\\grids\\graceopt3.txt",
+      "gridWidth": 14,
+      "gridHeight": 12,
+      "wordCount": 25,
+      "features": [
+        "oh-prefix",
+        "fragment-words",
+        "category-based"
+      ],
+      "wordMappings": "fragment",
+      "gridGeneration": "json-based",
+      "hasOH": true,
+      "hasZero": false,
+      "hasFragments": true,
+      "hasCategories": true
+    },
+    {
       "name": "military-condensed",
       "displayName": "Military Condensed",
       "description": "Condensed 15x15 grid with reusable word chunks for military time display",
@@ -289,10 +308,10 @@
     }
   ],
   "summary": {
-    "total": 15,
-    "withOH": 10,
+    "total": 16,
+    "withOH": 11,
     "withZero": 10,
-    "withFragments": 11,
-    "withCategories": 15
+    "withFragments": 12,
+    "withCategories": 16
   }
 }
