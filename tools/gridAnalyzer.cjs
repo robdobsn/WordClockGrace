@@ -16,7 +16,8 @@ const VERTICAL_WORDS = [
 
 class GridAnalyzer {
   constructor(gridLines) {
-    this.grid = gridLines.map(line => line.trim());
+    // Normalize grid by removing spaces between letters
+    this.grid = gridLines.map(line => line.trim().replace(/\s+/g, ''));
     this.foundWords = [];
   }
 

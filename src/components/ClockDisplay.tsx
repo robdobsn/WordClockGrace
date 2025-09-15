@@ -43,8 +43,8 @@ function createLetterGrid(layout: ClockLayout): string[][] {
     return generateGraceGPT2Grid();
   }
   
-  // For Auto Layout, Updated Layout, Gracegpt4, Gracegpt5, and Gracegpt6, use the JSON word positions if available
-  if ((layout.name === 'Auto Layout' || layout.name === 'Updated Layout' || layout.name === 'Gracegpt4' || layout.name === 'Gracegpt5' || layout.name === 'Gracegpt6') && layout.words.length > 0) {
+  // For Auto Layout, Updated Layout, Gracegpt4, Gracegpt5, Gracegpt6, and Graceopt1, use the JSON word positions if available
+  if ((layout.name === 'Auto Layout' || layout.name === 'Updated Layout' || layout.name === 'Gracegpt4' || layout.name === 'Gracegpt5' || layout.name === 'Gracegpt6' || layout.name === 'Graceopt1') && layout.words.length > 0) {
     // Use the word positions from the JSON layout
     const grid: string[][] = Array(layout.gridHeight)
       .fill(null)
@@ -72,8 +72,8 @@ function createLetterGrid(layout: ClockLayout): string[][] {
     return generateAutoLayoutGrid();
   }
   
-  // For Gracegpt4, Gracegpt5, and Gracegpt6, if no words data, create empty grid
-  if (layout.name === 'Gracegpt4' || layout.name === 'Gracegpt5' || layout.name === 'Gracegpt6') {
+  // For Gracegpt4, Gracegpt5, Gracegpt6, and Graceopt1, if no words data, create empty grid
+  if (layout.name === 'Gracegpt4' || layout.name === 'Gracegpt5' || layout.name === 'Gracegpt6' || layout.name === 'Graceopt1') {
     return Array(layout.gridHeight || 12)
       .fill(null)
       .map(() => Array(layout.gridWidth || 12).fill(' '));
@@ -172,7 +172,7 @@ function getPositionsFromWordInstance(wordInstance: any, word: string): Array<{r
 
 function getLetterPositions(layout: ClockLayout, word: string, preferredCategory?: 'hour' | 'minute' | 'military' | 'connector'): Array<{row: number, col: number}> {
   // For layouts that support categories, use category-based priority
-  if (preferredCategory && (layout.name === 'Auto Layout' || layout.name === 'Updated Layout' || layout.name === 'Gracegpt4' || layout.name === 'Gracegpt5' || layout.name === 'Gracegpt6')) {
+  if (preferredCategory && (layout.name === 'Auto Layout' || layout.name === 'Updated Layout' || layout.name === 'Gracegpt4' || layout.name === 'Gracegpt5' || layout.name === 'Gracegpt6' || layout.name === 'Graceopt1')) {
     return findWordWithCategoryPriority(layout, word, preferredCategory);
   }
   
@@ -319,7 +319,7 @@ const ClockDisplay: React.FC<ClockDisplayProps> = ({
         </p>
       </div>
       
-      {(layout.name === 'Auto Layout' || layout.name === 'Updated Layout' || layout.name === 'Gracegpt4' || layout.name === 'Gracegpt5' || layout.name === 'Gracegpt6') ? (
+      {(layout.name === 'Auto Layout' || layout.name === 'Updated Layout' || layout.name === 'Gracegpt4' || layout.name === 'Gracegpt5' || layout.name === 'Gracegpt6' || layout.name === 'Graceopt1') ? (
         <CategorizedLetterGrid 
           layout={layout}
           activeWordsWithCategory={militaryTime.wordsWithCategory}
