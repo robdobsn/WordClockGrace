@@ -157,8 +157,8 @@ const FRAGMENT_MINUTE_WORDS: Record<number, string[]> = {
 function layoutHasWord(layoutName: string, word: string): boolean {
   // This would need to be enhanced to actually check the layout data
   // For now, we'll use layout name patterns to determine capabilities
-  if (layoutName === 'Gracegpt4') {
-    // gracegpt4 has OH but no ZERO
+  if (layoutName === 'Gracegpt4' || layoutName === 'Gracegpt5' || layoutName === 'Gracegpt6') {
+    // gracegpt4 and gracegpt5 have OH but no ZERO
     return word === 'OH';
   }
   // Most other layouts have ZERO
@@ -167,7 +167,7 @@ function layoutHasWord(layoutName: string, word: string): boolean {
 
 // Helper function to get appropriate zero representation
 function getZeroWords(layoutName: string): { words: string[], category: string } {
-  if (layoutName === 'Gracegpt4') {
+  if (layoutName === 'Gracegpt4' || layoutName === 'Gracegpt5' || layoutName === 'Gracegpt6') {
     // Check if we have multiple OH words for double-oh representation
     return { words: ['OH', 'OH'], category: 'hour' }; // For 00:xx = OH OH xx
   }
@@ -176,7 +176,7 @@ function getZeroWords(layoutName: string): { words: string[], category: string }
 
 // Helper function to get OH prefix for single-digit hours (01-09)
 function getOHPrefix(layoutName: string, hour: number): { words: string[], category: string } | null {
-  if (layoutName === 'Gracegpt4' && hour >= 1 && hour <= 9) {
+  if ((layoutName === 'Gracegpt4' || layoutName === 'Gracegpt5' || layoutName === 'Gracegpt6') && hour >= 1 && hour <= 9) {
     // For 01-09, prepend OH (e.g., 02:20 = OH TWO TWENTY)
     return { words: ['OH'], category: 'hour' };
   }
@@ -185,7 +185,7 @@ function getOHPrefix(layoutName: string, hour: number): { words: string[], categ
 
 // Helper function to get appropriate minute connector
 function getMinuteConnector(layoutName: string, minute: number): { words: string[], category: string } | null {
-  if (layoutName === 'Gracegpt4' && minute === 5) {
+  if ((layoutName === 'Gracegpt4' || layoutName === 'Gracegpt5' || layoutName === 'Gracegpt6') && minute === 5) {
     // For xx:05 = OH FIVE (using vertical OH as connector)
     return { words: ['OH'], category: 'connector' };
   }
@@ -218,7 +218,7 @@ export function convertToMilitaryTime(hours: number, minutes: number, layoutName
   } else if (layoutName === 'GraceGPT' || layoutName === 'GraceGPT2') {
     hourWordsMap = GRACEGPT_HOUR_WORDS;
     minuteWordsMap = GRACEGPT_MINUTE_WORDS;
-  } else if (layoutName === 'Auto Layout' || layoutName === 'Updated Layout' || layoutName === 'Gracegpt4') {
+  } else if (layoutName === 'Auto Layout' || layoutName === 'Updated Layout' || layoutName === 'Gracegpt4' || layoutName === 'Gracegpt5' || layoutName === 'Gracegpt6') {
     // Use fragment-based mappings for auto-generated layouts
     hourWordsMap = FRAGMENT_HOUR_WORDS;
     minuteWordsMap = FRAGMENT_MINUTE_WORDS;

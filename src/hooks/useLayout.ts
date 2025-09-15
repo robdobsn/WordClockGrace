@@ -14,6 +14,8 @@ async function discoverLayouts(): Promise<string[]> {
       'gracegpt',
       'gracegpt2',
       'gracegpt4',
+      'gracegpt5',
+      'gracegpt6',
       'auto-layout',
       'updated-layout'
     ];
