@@ -119,7 +119,19 @@ function findWordWithCategoryPriority(layout: ClockLayout, word: string, preferr
     if (minuteWords.length > 0) {
       return getPositionsFromWordInstance(minuteWords[0], word);
     }
-    // If no minute word found, return empty
+    
+    // Fallback for fragment words: if no minute category found, check hour category BUT only vertical direction
+    // This handles cases like FIF/TEEN which might be categorized as hour but used for minutes
+    // STRICT RULE: Minutes must ALWAYS be vertical
+    const fragmentWords = ['FIF', 'TEEN'];
+    if (fragmentWords.includes(word)) {
+      const verticalHourWords = wordInstances.filter(w => w.category === 'hour' && w.direction === 'vertical');
+      if (verticalHourWords.length > 0) {
+        return getPositionsFromWordInstance(verticalHourWords[0], word);
+      }
+    }
+    
+    // If no suitable word found, return empty
     return [];
   }
   

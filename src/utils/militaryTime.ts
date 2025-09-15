@@ -42,7 +42,7 @@ const MINUTE_WORDS: Record<number, string[]> = {
   0: [], // No minutes for "hundred hours"
   5: ['FIVE'],
   10: ['TEN'],
-  15: ['FIFTEEN'],
+  15: ['FIF', 'TEEN'],
   20: ['TWENTY'],
   25: ['TWENTY', 'FIVE'],
   30: ['THIRTY'],
@@ -144,7 +144,7 @@ const FRAGMENT_MINUTE_WORDS: Record<number, string[]> = {
   0: ['HUNDRED'],
   5: ['FIVE'],
   10: ['TEN'],
-  15: ['FIFTEEN'],
+  15: ['FIF', 'TEEN'],
   20: ['TWENTY'],
   25: ['TWENTY', 'FIVE'],
   30: ['THIRTY'],
