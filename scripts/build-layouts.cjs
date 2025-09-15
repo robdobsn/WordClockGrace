@@ -93,6 +93,27 @@ function analyzeLayoutFeatures(layoutData) {
     features.push('category-based');
   }
   
+  // Analyze minute granularity
+  const minuteWords = layoutData.words?.filter(w => w.category === 'minute').map(w => w.word) || [];
+  const fiveMinuteWords = ['FIVE', 'TEN', 'FIFTEEN', 'TWENTY', 'THIRTY', 'FORTY', 'FIFTY'];
+  const individualMinuteWords = ['ONE', 'TWO', 'THREE', 'FOUR', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 'ELEVEN', 'TWELVE'];
+  const compositeMinuteWords = ['TWENTYFIVE', 'THIRTYFIVE', 'FORTYFIVE', 'FIFTYFIVE'];
+  
+  let minuteGranularity = 'five-minute'; // default
+  
+  // Check for composite minute words (like TWENTYFIVE)
+  const hasCompositeWords = compositeMinuteWords.some(word => minuteWords.includes(word));
+  if (hasCompositeWords) {
+    features.push('composite-minutes');
+  }
+  
+  // Check for individual minute words
+  const hasIndividualWords = individualMinuteWords.some(word => minuteWords.includes(word));
+  if (hasIndividualWords) {
+    minuteGranularity = 'individual';
+    features.push('individual-minutes');
+  }
+  
   // Determine word mapping type
   let wordMappings = 'standard';
   if (hasFragments) {
@@ -116,7 +137,9 @@ function analyzeLayoutFeatures(layoutData) {
     hasOH,
     hasZero,
     hasFragments,
-    hasCategories
+    hasCategories,
+    minuteGranularity,
+    minuteWords: minuteWords
   };
 }
 

@@ -169,10 +169,13 @@ function layoutHasWord(layoutName: string, word: string): boolean {
 
 // Helper function to get appropriate zero representation
 function getZeroWords(layoutMetadata?: LayoutMetadata | null): { words: string[], category: string } {
-  // For layouts with OH support but no ZERO, use OH OH for 00:xx
-  if (layoutMetadata?.hasOH && !layoutMetadata?.hasZero) {
-    return { words: ['OH', 'OH'], category: 'hour' }; // For 00:xx = OH OH xx
+  // For 00:00, prefer ZERO if available, otherwise use OH
+  if (layoutMetadata?.hasZero) {
+    return { words: ['ZERO'], category: 'hour' }; // ZERO HUNDRED
+  } else if (layoutMetadata?.hasOH) {
+    return { words: ['OH'], category: 'hour' }; // OH HUNDRED
   }
+  // Default fallback to ZERO
   return { words: ['ZERO'], category: 'hour' };
 }
 
@@ -197,12 +200,19 @@ function getMinuteConnector(layoutMetadata: LayoutMetadata | null | undefined, m
 }
 
 export function convertToMilitaryTime(hours: number, minutes: number, layoutName?: string, layoutMetadata?: LayoutMetadata | null): MilitaryTimeWords {
-  // Round minutes to nearest 5
-  const roundedMinutes = Math.round(minutes / 5) * 5;
+  // Round minutes based on layout capability
+  let adjustedMinutes = minutes;
+  
+  if (layoutMetadata?.minuteGranularity === 'individual') {
+    // Support individual minutes - no rounding needed
+    adjustedMinutes = minutes;
+  } else {
+    // Default to 5-minute intervals
+    adjustedMinutes = Math.round(minutes / 5) * 5;
+  }
   
   // Handle hour rollover if minutes round up to 60
   let adjustedHours = hours;
-  let adjustedMinutes = roundedMinutes;
   
   if (adjustedMinutes >= 60) {
     adjustedMinutes = 0;

@@ -12,16 +12,16 @@
       "category": "hour"
     },
     {
-      "word": "THIR",
+      "word": "FIVE",
       "startRow": 1,
-      "startCol": 5,
+      "startCol": 0,
       "direction": "horizontal",
       "category": "hour"
     },
     {
-      "word": "FIVE",
+      "word": "THIR",
       "startRow": 1,
-      "startCol": 0,
+      "startCol": 5,
       "direction": "horizontal",
       "category": "hour"
     },
@@ -40,9 +40,9 @@
       "category": "hour"
     },
     {
-      "word": "FIF",
+      "word": "ONE",
       "startRow": 4,
-      "startCol": 7,
+      "startCol": 2,
       "direction": "horizontal",
       "category": "hour"
     },
@@ -54,16 +54,9 @@
       "category": "hour"
     },
     {
-      "word": "ONE",
+      "word": "FIF",
       "startRow": 4,
-      "startCol": 2,
-      "direction": "horizontal",
-      "category": "hour"
-    },
-    {
-      "word": "THREE",
-      "startRow": 5,
-      "startCol": 1,
+      "startCol": 7,
       "direction": "horizontal",
       "category": "hour"
     },
@@ -71,6 +64,13 @@
       "word": "TWO",
       "startRow": 5,
       "startCol": 9,
+      "direction": "horizontal",
+      "category": "hour"
+    },
+    {
+      "word": "THREE",
+      "startRow": 5,
+      "startCol": 1,
       "direction": "horizontal",
       "category": "hour"
     },
@@ -131,11 +131,25 @@
       "category": "hour"
     },
     {
-      "word": "FIFTEEN",
-      "startRow": 6,
+      "word": "FOUR",
+      "startRow": 1,
       "startCol": 0,
       "direction": "vertical",
       "category": "minute"
+    },
+    {
+      "word": "TEEN",
+      "startRow": 9,
+      "startCol": 0,
+      "direction": "vertical",
+      "category": "hour"
+    },
+    {
+      "word": "FIF",
+      "startRow": 6,
+      "startCol": 0,
+      "direction": "vertical",
+      "category": "hour"
     },
     {
       "word": "FORTY",
@@ -152,6 +166,20 @@
       "category": "connector"
     },
     {
+      "word": "SEVEN",
+      "startRow": 0,
+      "startCol": 3,
+      "direction": "vertical",
+      "category": "minute"
+    },
+    {
+      "word": "THREE",
+      "startRow": 1,
+      "startCol": 4,
+      "direction": "vertical",
+      "category": "minute"
+    },
+    {
       "word": "TEN",
       "startRow": 4,
       "startCol": 5,
@@ -166,11 +194,39 @@
       "category": "minute"
     },
     {
+      "word": "TWO",
+      "startRow": 5,
+      "startCol": 7,
+      "direction": "vertical",
+      "category": "minute"
+    },
+    {
       "word": "FIVE",
       "startRow": 0,
       "startCol": 7,
       "direction": "vertical",
       "category": "minute"
+    },
+    {
+      "word": "EIGHT",
+      "startRow": 8,
+      "startCol": 7,
+      "direction": "vertical",
+      "category": "minute"
+    },
+    {
+      "word": "NINE",
+      "startRow": 8,
+      "startCol": 8,
+      "direction": "vertical",
+      "category": "minute"
+    },
+    {
+      "word": "THIR",
+      "startRow": 2,
+      "startCol": 8,
+      "direction": "vertical",
+      "category": "hour"
     },
     {
       "word": "THIRTY",
@@ -180,9 +236,30 @@
       "category": "minute"
     },
     {
+      "word": "SIX",
+      "startRow": 7,
+      "startCol": 9,
+      "direction": "vertical",
+      "category": "minute"
+    },
+    {
+      "word": "FIF",
+      "startRow": 2,
+      "startCol": 9,
+      "direction": "vertical",
+      "category": "hour"
+    },
+    {
       "word": "FIFTY",
       "startRow": 2,
       "startCol": 9,
+      "direction": "vertical",
+      "category": "minute"
+    },
+    {
+      "word": "ONE",
+      "startRow": 5,
+      "startCol": 11,
       "direction": "vertical",
       "category": "minute"
     },

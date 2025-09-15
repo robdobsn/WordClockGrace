@@ -5,13 +5,15 @@ const path = require('path');
 
 // Specific horizontal words to search for
 const HORIZONTAL_WORDS = [
-  'THIR', 'SIX', 'THREE', 'EIGHT', 'ZERO', 'FIF', 'FIVE', 'TEN', 
-  'NINE', 'FOUR', 'SEVEN', 'ONE', 'TWO', 'ELEVEN', 'TWELVE', 'TEEN', 'OH', 'TWENTY'
+  'ZERO', 'OH', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 
+  'NINE', 'TEN', 'ELEVEN', 'TWELVE', 'THIR', 'TEEN', 'FIF', 'TWENTY'
 ];
 
 // Specific vertical words to search for  
 const VERTICAL_WORDS = [
-  'TWENTY', 'FIVE', 'THIRTY', 'FORTY', 'FIFTY', 'FIFTEEN', 'HUNDRED', 'OH', 'TEN'
+  'ZERO', 'OH', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 
+  'TEN', 'ELEVEN', 'TWELVE', 'THIR', 'TEEN', 'FIF', 'TWENTY', 'THIRTY', 'FORTY', 
+  'FIFTY', 'HUNDRED'
 ];
 
 class GridAnalyzer {
@@ -149,11 +151,10 @@ class GridAnalyzer {
     const pureMinuteWords = ['FIFTEEN', 'THIRTY', 'FORTY', 'FIFTY'];
     
     // Ambiguous words that depend on direction for categorization
-    const ambiguousWords = ['FIVE', 'TEN', 'TWENTY'];
+    const ambiguousWords = ['FIVE', 'TEN', 'TWENTY', 'ONE', 'TWO', 'THREE', 'FOUR', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 'ELEVEN', 'TWELVE'];
     
     // Pure hour words (only used for hours regardless of direction)  
-    const pureHourWords = ['ZERO', 'ONE', 'TWO', 'THREE', 'FOUR', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 
-                          'ELEVEN', 'TWELVE', 'THIR', 'FIF', 'TEEN'];
+    const pureHourWords = ['ZERO', 'THIR', 'FIF', 'TEEN'];
     
     // Check pure minute words first (these are never hours)
     if (pureMinuteWords.includes(word)) return 'minute';

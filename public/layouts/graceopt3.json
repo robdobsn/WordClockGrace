@@ -1,6 +1,6 @@
 {
   "name": "Graceopt3",
-  "description": "Generated from C:\\Users\\rob\\Documents\\rdev\\WordClockGrace\\grids\\graceopt3.txt",
+  "description": "Generated from grids/graceopt3.txt",
   "gridWidth": 14,
   "gridHeight": 12,
   "words": [
@@ -12,16 +12,16 @@
       "category": "hour"
     },
     {
-      "word": "FIF",
+      "word": "FOUR",
       "startRow": 3,
-      "startCol": 2,
+      "startCol": 4,
       "direction": "horizontal",
       "category": "hour"
     },
     {
-      "word": "FOUR",
+      "word": "FIF",
       "startRow": 3,
-      "startCol": 4,
+      "startCol": 2,
       "direction": "horizontal",
       "category": "hour"
     },
@@ -36,6 +36,13 @@
       "word": "TWENTY",
       "startRow": 4,
       "startCol": 2,
+      "direction": "horizontal",
+      "category": "hour"
+    },
+    {
+      "word": "OH",
+      "startRow": 5,
+      "startCol": 10,
       "direction": "horizontal",
       "category": "hour"
     },
@@ -61,16 +68,9 @@
       "category": "hour"
     },
     {
-      "word": "OH",
-      "startRow": 5,
-      "startCol": 10,
-      "direction": "horizontal",
-      "category": "hour"
-    },
-    {
-      "word": "THIR",
+      "word": "FIVE",
       "startRow": 6,
-      "startCol": 7,
+      "startCol": 0,
       "direction": "horizontal",
       "category": "hour"
     },
@@ -82,9 +82,9 @@
       "category": "hour"
     },
     {
-      "word": "FIVE",
+      "word": "THIR",
       "startRow": 6,
-      "startCol": 0,
+      "startCol": 7,
       "direction": "horizontal",
       "category": "hour"
     },
@@ -103,16 +103,16 @@
       "category": "hour"
     },
     {
-      "word": "NINE",
+      "word": "SEVEN",
       "startRow": 8,
-      "startCol": 6,
+      "startCol": 2,
       "direction": "horizontal",
       "category": "hour"
     },
     {
-      "word": "SEVEN",
+      "word": "NINE",
       "startRow": 8,
-      "startCol": 2,
+      "startCol": 6,
       "direction": "horizontal",
       "category": "hour"
     },
@@ -131,6 +131,20 @@
       "category": "minute"
     },
     {
+      "word": "ELEVEN",
+      "startRow": 0,
+      "startCol": 1,
+      "direction": "vertical",
+      "category": "minute"
+    },
+    {
+      "word": "SIX",
+      "startRow": 8,
+      "startCol": 2,
+      "direction": "vertical",
+      "category": "minute"
+    },
+    {
       "word": "OH",
       "startRow": 9,
       "startCol": 4,
@@ -138,9 +152,16 @@
       "category": "connector"
     },
     {
-      "word": "THIRTY",
-      "startRow": 6,
-      "startCol": 7,
+      "word": "TWO",
+      "startRow": 9,
+      "startCol": 5,
+      "direction": "vertical",
+      "category": "minute"
+    },
+    {
+      "word": "ONE",
+      "startRow": 0,
+      "startCol": 6,
       "direction": "vertical",
       "category": "minute"
     },
@@ -150,6 +171,55 @@
       "startCol": 7,
       "direction": "vertical",
       "category": "minute"
+    },
+    {
+      "word": "THIR",
+      "startRow": 6,
+      "startCol": 7,
+      "direction": "vertical",
+      "category": "hour"
+    },
+    {
+      "word": "THIRTY",
+      "startRow": 6,
+      "startCol": 7,
+      "direction": "vertical",
+      "category": "minute"
+    },
+    {
+      "word": "EIGHT",
+      "startRow": 0,
+      "startCol": 8,
+      "direction": "vertical",
+      "category": "minute"
+    },
+    {
+      "word": "THREE",
+      "startRow": 0,
+      "startCol": 9,
+      "direction": "vertical",
+      "category": "minute"
+    },
+    {
+      "word": "FOUR",
+      "startRow": 8,
+      "startCol": 10,
+      "direction": "vertical",
+      "category": "minute"
+    },
+    {
+      "word": "SEVEN",
+      "startRow": 0,
+      "startCol": 10,
+      "direction": "vertical",
+      "category": "minute"
+    },
+    {
+      "word": "FIF",
+      "startRow": 0,
+      "startCol": 11,
+      "direction": "vertical",
+      "category": "hour"
     },
     {
       "word": "FIFTY",
@@ -169,6 +239,20 @@
       "word": "FIVE",
       "startRow": 7,
       "startCol": 12,
+      "direction": "vertical",
+      "category": "minute"
+    },
+    {
+      "word": "TWELVE",
+      "startRow": 1,
+      "startCol": 12,
+      "direction": "vertical",
+      "category": "minute"
+    },
+    {
+      "word": "NINE",
+      "startRow": 7,
+      "startCol": 13,
       "direction": "vertical",
       "category": "minute"
     },

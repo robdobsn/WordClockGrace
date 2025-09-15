@@ -1,5 +1,5 @@
 {
-  "generated": "2025-09-15T03:16:48.090Z",
+  "generated": "2025-09-15T04:10:45.310Z",
   "layouts": [
     {
       "name": "auto-layout",
@@ -19,7 +19,20 @@
       "hasOH": true,
       "hasZero": true,
       "hasFragments": true,
-      "hasCategories": true
+      "hasCategories": true,
+      "minuteGranularity": "five-minute",
+      "minuteWords": [
+        "TWENTY",
+        "FIVE",
+        "TEN",
+        "TEN",
+        "FIFTEEN",
+        "TWENTY",
+        "THIRTY",
+        "FORTY",
+        "FIFTY",
+        "FIVE"
+      ]
     },
     {
       "name": "compact-vertical",
@@ -38,7 +51,18 @@
       "hasOH": true,
       "hasZero": true,
       "hasFragments": false,
-      "hasCategories": true
+      "hasCategories": true,
+      "minuteGranularity": "five-minute",
+      "minuteWords": [
+        "OH",
+        "FIVE",
+        "TEN",
+        "FIFTEEN",
+        "TWENTY",
+        "THIRTY",
+        "FORTY",
+        "FIFTY"
+      ]
     },
     {
       "name": "crossword-one",
@@ -49,14 +73,30 @@
       "wordCount": 37,
       "features": [
         "zero-word",
-        "category-based"
+        "category-based",
+        "composite-minutes"
       ],
       "wordMappings": "crossword",
       "gridGeneration": "json-based",
       "hasOH": false,
       "hasZero": true,
       "hasFragments": false,
-      "hasCategories": true
+      "hasCategories": true,
+      "minuteGranularity": "five-minute",
+      "minuteWords": [
+        "ZERO",
+        "FIVE",
+        "TEN",
+        "FIFTEEN",
+        "TWENTY",
+        "TWENTYFIVE",
+        "THIRTY",
+        "THIRTYFIVE",
+        "FORTY",
+        "FORTYFIVE",
+        "FIFTY",
+        "FIFTYFIVE"
+      ]
     },
     {
       "name": "gracegpt",
@@ -75,7 +115,16 @@
       "hasOH": false,
       "hasZero": true,
       "hasFragments": true,
-      "hasCategories": true
+      "hasCategories": true,
+      "minuteGranularity": "five-minute",
+      "minuteWords": [
+        "TEN",
+        "TWENTY",
+        "THIRTY",
+        "FORTY",
+        "FIFTY",
+        "FIVE"
+      ]
     },
     {
       "name": "gracegpt2",
@@ -94,7 +143,16 @@
       "hasOH": false,
       "hasZero": true,
       "hasFragments": true,
-      "hasCategories": true
+      "hasCategories": true,
+      "minuteGranularity": "five-minute",
+      "minuteWords": [
+        "TWENTY",
+        "FIVE",
+        "THIRTY",
+        "FORTY",
+        "FIFTY",
+        "FIFTEEN"
+      ]
     },
     {
       "name": "gracegpt3",
@@ -102,7 +160,35 @@
       "description": "Generated from C:\\Users\\rob\\Documents\\rdev\\WordClockGrace\\grids\\gracegpt3.txt",
       "gridWidth": 11,
       "gridHeight": 11,
-      "wordCount": 26,
+      "wordCount": 28,
+      "features": [
+        "oh-prefix",
+        "fragment-words",
+        "category-based"
+      ],
+      "wordMappings": "fragment",
+      "gridGeneration": "json-based",
+      "hasOH": true,
+      "hasZero": false,
+      "hasFragments": true,
+      "hasCategories": true,
+      "minuteGranularity": "five-minute",
+      "minuteWords": [
+        "TEN",
+        "TWENTY",
+        "THIRTY",
+        "FORTY",
+        "FIFTY",
+        "FIVE"
+      ]
+    },
+    {
+      "name": "gracegpt3a",
+      "displayName": "Gracegpt3a",
+      "description": "Generated from C:\\Users\\rob\\Documents\\rdev\\WordClockGrace\\grids\\gracegpt3a.txt",
+      "gridWidth": 12,
+      "gridHeight": 11,
+      "wordCount": 30,
       "features": [
         "oh-prefix",
         "zero-word",
@@ -114,7 +200,16 @@
       "hasOH": true,
       "hasZero": true,
       "hasFragments": true,
-      "hasCategories": true
+      "hasCategories": true,
+      "minuteGranularity": "five-minute",
+      "minuteWords": [
+        "TEN",
+        "TWENTY",
+        "THIRTY",
+        "FORTY",
+        "FIFTY",
+        "FIVE"
+      ]
     },
     {
       "name": "gracegpt4 copy",
@@ -133,7 +228,12 @@
       "hasOH": true,
       "hasZero": false,
       "hasFragments": true,
-      "hasCategories": true
+      "hasCategories": true,
+      "minuteGranularity": "five-minute",
+      "minuteWords": [
+        "FIFTY",
+        "FIVE"
+      ]
     },
     {
       "name": "gracegpt4",
@@ -152,7 +252,17 @@
       "hasOH": true,
       "hasZero": false,
       "hasFragments": true,
-      "hasCategories": true
+      "hasCategories": true,
+      "minuteGranularity": "five-minute",
+      "minuteWords": [
+        "TEN",
+        "FIFTEEN",
+        "TWENTY",
+        "THIRTY",
+        "FORTY",
+        "FIFTY",
+        "FIVE"
+      ]
     },
     {
       "name": "gracegpt5",
@@ -171,7 +281,17 @@
       "hasOH": true,
       "hasZero": false,
       "hasFragments": true,
-      "hasCategories": true
+      "hasCategories": true,
+      "minuteGranularity": "five-minute",
+      "minuteWords": [
+        "TEN",
+        "FIFTEEN",
+        "TWENTY",
+        "THIRTY",
+        "FORTY",
+        "FIFTY",
+        "FIVE"
+      ]
     },
     {
       "name": "gracegpt6",
@@ -190,7 +310,17 @@
       "hasOH": true,
       "hasZero": false,
       "hasFragments": true,
-      "hasCategories": true
+      "hasCategories": true,
+      "minuteGranularity": "five-minute",
+      "minuteWords": [
+        "TEN",
+        "FIFTEEN",
+        "TWENTY",
+        "THIRTY",
+        "FORTY",
+        "FIFTY",
+        "FIVE"
+      ]
     },
     {
       "name": "graceopt1",
@@ -198,19 +328,37 @@
       "description": "Generated from grids/graceopt1.txt",
       "gridWidth": 13,
       "gridHeight": 13,
-      "wordCount": 27,
+      "wordCount": 38,
       "features": [
         "oh-prefix",
         "zero-word",
         "fragment-words",
-        "category-based"
+        "category-based",
+        "individual-minutes"
       ],
       "wordMappings": "fragment",
       "gridGeneration": "json-based",
       "hasOH": true,
       "hasZero": true,
       "hasFragments": true,
-      "hasCategories": true
+      "hasCategories": true,
+      "minuteGranularity": "individual",
+      "minuteWords": [
+        "FOUR",
+        "FORTY",
+        "SEVEN",
+        "THREE",
+        "TEN",
+        "TWENTY",
+        "TWO",
+        "FIVE",
+        "EIGHT",
+        "NINE",
+        "THIRTY",
+        "SIX",
+        "FIFTY",
+        "ONE"
+      ]
     },
     {
       "name": "graceopt2",
@@ -229,26 +377,55 @@
       "hasOH": true,
       "hasZero": false,
       "hasFragments": true,
-      "hasCategories": true
+      "hasCategories": true,
+      "minuteGranularity": "five-minute",
+      "minuteWords": [
+        "FORTY",
+        "THIRTY",
+        "TEN",
+        "FIFTY",
+        "FIVE",
+        "TWENTY"
+      ]
     },
     {
       "name": "graceopt3",
       "displayName": "Graceopt3",
-      "description": "Generated from C:\\Users\\rob\\Documents\\rdev\\WordClockGrace\\grids\\graceopt3.txt",
+      "description": "Generated from grids/graceopt3.txt",
       "gridWidth": 14,
       "gridHeight": 12,
-      "wordCount": 25,
+      "wordCount": 37,
       "features": [
         "oh-prefix",
         "fragment-words",
-        "category-based"
+        "category-based",
+        "individual-minutes"
       ],
       "wordMappings": "fragment",
       "gridGeneration": "json-based",
       "hasOH": true,
       "hasZero": false,
       "hasFragments": true,
-      "hasCategories": true
+      "hasCategories": true,
+      "minuteGranularity": "individual",
+      "minuteWords": [
+        "FORTY",
+        "ELEVEN",
+        "SIX",
+        "TWO",
+        "ONE",
+        "TEN",
+        "THIRTY",
+        "EIGHT",
+        "THREE",
+        "FOUR",
+        "SEVEN",
+        "FIFTY",
+        "FIVE",
+        "TWELVE",
+        "NINE",
+        "TWENTY"
+      ]
     },
     {
       "name": "military-condensed",
@@ -266,7 +443,21 @@
       "hasOH": false,
       "hasZero": true,
       "hasFragments": false,
-      "hasCategories": true
+      "hasCategories": true,
+      "minuteGranularity": "five-minute",
+      "minuteWords": [
+        "ZERO",
+        "FIVE",
+        "TEN",
+        "FIFTEEN",
+        "TWENTY",
+        "THIRTY",
+        "FORTY",
+        "FIFTY",
+        "FIFTEEN",
+        "FORTY",
+        "FIVE"
+      ]
     },
     {
       "name": "military-standard",
@@ -285,7 +476,18 @@
       "hasOH": true,
       "hasZero": true,
       "hasFragments": false,
-      "hasCategories": true
+      "hasCategories": true,
+      "minuteGranularity": "five-minute",
+      "minuteWords": [
+        "OH",
+        "FIVE",
+        "TEN",
+        "FIFTEEN",
+        "TWENTY",
+        "THIRTY",
+        "FORTY",
+        "FIFTY"
+      ]
     },
     {
       "name": "updated-layout",
@@ -304,14 +506,24 @@
       "hasOH": false,
       "hasZero": true,
       "hasFragments": true,
-      "hasCategories": true
+      "hasCategories": true,
+      "minuteGranularity": "five-minute",
+      "minuteWords": [
+        "FIVE",
+        "FIFTEEN",
+        "TWENTY",
+        "THIRTY",
+        "FORTY",
+        "FIFTY",
+        "FIVE"
+      ]
     }
   ],
   "summary": {
-    "total": 16,
-    "withOH": 11,
+    "total": 17,
+    "withOH": 12,
     "withZero": 10,
-    "withFragments": 12,
-    "withCategories": 16
+    "withFragments": 13,
+    "withCategories": 17
   }
 }

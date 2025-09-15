@@ -1,12 +1,14 @@
 import React from 'react';
 import { TimeSettings } from '../types/layout';
+import { LayoutMetadata } from '../hooks/useLayout';
 
 interface TimeControlsProps {
   timeSettings: TimeSettings;
   onTimeChange: (settings: TimeSettings) => void;
+  layoutMetadata?: LayoutMetadata | null;
 }
 
-const TimeControls: React.FC<TimeControlsProps> = ({ timeSettings, onTimeChange }) => {
+const TimeControls: React.FC<TimeControlsProps> = ({ timeSettings, onTimeChange, layoutMetadata }) => {
   const handleHoursChange = (hours: number) => {
     onTimeChange({ ...timeSettings, hours });
   };
@@ -22,8 +24,13 @@ const TimeControls: React.FC<TimeControlsProps> = ({ timeSettings, onTimeChange 
   // Generate hour options (0-23)
   const hourOptions = Array.from({ length: 24 }, (_, i) => i);
   
-  // Generate minute options (0, 5, 10, 15, ..., 55)
-  const minuteOptions = Array.from({ length: 12 }, (_, i) => i * 5);
+  // Generate minute options based on layout capabilities
+  const isIndividualMinutes = layoutMetadata?.minuteGranularity === 'individual';
+  const minuteOptions = isIndividualMinutes 
+    ? Array.from({ length: 60 }, (_, i) => i) // 0-59 for individual minutes
+    : Array.from({ length: 12 }, (_, i) => i * 5); // 0, 5, 10... for 5-minute intervals
+  
+  const minuteLabel = isIndividualMinutes ? "Minutes (individual)" : "Minutes (5-minute intervals)";
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
@@ -85,7 +92,7 @@ const TimeControls: React.FC<TimeControlsProps> = ({ timeSettings, onTimeChange 
           {/* Minutes */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Minutes (5-minute intervals)
+              {minuteLabel}
             </label>
             <div className="flex items-center space-x-2">
               <button

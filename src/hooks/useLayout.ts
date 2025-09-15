@@ -17,6 +17,8 @@ export interface LayoutMetadata {
   hasZero: boolean;
   hasFragments: boolean;
   hasCategories: boolean;
+  minuteGranularity: 'five-minute' | 'individual';
+  minuteWords: string[];
 }
 
 // Function to discover available layouts from generated manifest
@@ -72,7 +74,9 @@ async function discoverLayouts(): Promise<{ layouts: string[], metadata: Record<
             hasOH: false,
             hasZero: true,
             hasFragments: false,
-            hasCategories: false
+            hasCategories: false,
+            minuteGranularity: 'five-minute',
+            minuteWords: []
           };
         }
       } catch {

@@ -109,9 +109,10 @@ function App() {
 
           {/* Controls */}
           <div className="lg:col-span-2 space-y-6">
-            <TimeControls
+            <TimeControls 
               timeSettings={timeSettings}
               onTimeChange={setTimeSettings}
+              layoutMetadata={getLayoutMetadata(layout.name.toLowerCase().replace(/\s+/g, '-'))}
             />
             
             <FontControls
