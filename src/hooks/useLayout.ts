@@ -1,51 +1,93 @@
 import { useState, useEffect } from 'react';
 import { ClockLayout } from '../types/layout';
+import layoutsManifest from '../generated/layouts-manifest.json';
 
-// Function to discover available layouts dynamically
-async function discoverLayouts(): Promise<string[]> {
+// Interface for layout metadata
+export interface LayoutMetadata {
+  name: string;
+  displayName: string;
+  description: string;
+  gridWidth: number;
+  gridHeight: number;
+  wordCount: number;
+  features: string[];
+  wordMappings: 'standard' | 'fragment' | 'gracegpt' | 'crossword';
+  gridGeneration: 'hardcoded' | 'json-based';
+  hasOH: boolean;
+  hasZero: boolean;
+  hasFragments: boolean;
+  hasCategories: boolean;
+}
+
+// Function to discover available layouts from generated manifest
+async function discoverLayouts(): Promise<{ layouts: string[], metadata: Record<string, LayoutMetadata> }> {
   try {
-    // This is a simplified approach - in a real app you might use a backend API
-    // For now, we'll try to load known layout files and handle 404s gracefully
-    const knownLayouts = [
-      'military-standard',
-      'compact-vertical', 
-      'military-condensed',
-      'crossword-one',
-      'gracegpt',
-      'gracegpt2',
-      'gracegpt4',
-      'gracegpt5',
-      'gracegpt6',
-      'graceopt1',
-      'auto-layout',
-      'updated-layout'
-    ];
+    console.log(`📊 Loading ${layoutsManifest.layouts.length} layouts from manifest (generated: ${layoutsManifest.generated})`);
     
     const availableLayouts: string[] = [];
+    const metadata: Record<string, LayoutMetadata> = {};
     
-    for (const layoutName of knownLayouts) {
+    // Check which layouts are actually available by trying to fetch them
+    for (const layoutInfo of layoutsManifest.layouts) {
+      try {
+        const response = await fetch(`/layouts/${layoutInfo.name}.json`);
+        if (response.ok) {
+          availableLayouts.push(layoutInfo.name);
+          metadata[layoutInfo.name] = layoutInfo as LayoutMetadata;
+        }
+      } catch (error) {
+        console.debug(`Layout ${layoutInfo.name} not accessible:`, error);
+      }
+    }
+    
+    console.log(`✅ Found ${availableLayouts.length} available layouts:`, availableLayouts);
+    return { layouts: availableLayouts, metadata };
+    
+  } catch (error) {
+    console.error('Error loading layouts manifest:', error);
+    
+    // Fallback to basic manual discovery
+    const fallbackLayouts = ['military-standard', 'compact-vertical', 'military-condensed', 'crossword-one'];
+    const fallbackMetadata: Record<string, LayoutMetadata> = {};
+    
+    const availableLayouts: string[] = [];
+    for (const layoutName of fallbackLayouts) {
       try {
         const response = await fetch(`/layouts/${layoutName}.json`);
         if (response.ok) {
           availableLayouts.push(layoutName);
+          // Create basic metadata for fallback
+          fallbackMetadata[layoutName] = {
+            name: layoutName,
+            displayName: layoutName.split('-').map(word => 
+              word.charAt(0).toUpperCase() + word.slice(1)
+            ).join(' '),
+            description: 'Legacy layout',
+            gridWidth: 0,
+            gridHeight: 0,
+            wordCount: 0,
+            features: ['zero-word'],
+            wordMappings: 'standard',
+            gridGeneration: 'hardcoded',
+            hasOH: false,
+            hasZero: true,
+            hasFragments: false,
+            hasCategories: false
+          };
         }
-      } catch (error) {
-        // Layout doesn't exist, skip it
-        console.debug(`Layout ${layoutName} not found`);
+      } catch {
+        // Skip unavailable layouts
       }
     }
     
-    return availableLayouts;
-  } catch (error) {
-    console.error('Error discovering layouts:', error);
-    // Fallback to basic layouts
-    return ['military-standard', 'compact-vertical', 'military-condensed', 'crossword-one'];
+    return { layouts: availableLayouts, metadata: fallbackMetadata };
   }
 }
 
 export function useLayout() {
   const [layout, setLayout] = useState<ClockLayout | null>(null);
   const [availableLayouts, setAvailableLayouts] = useState<string[]>([]);
+  const [layoutsMetadata, setLayoutsMetadata] = useState<Record<string, LayoutMetadata>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -69,12 +111,17 @@ export function useLayout() {
     }
   };
 
+  const getLayoutMetadata = (layoutName: string): LayoutMetadata | null => {
+    return layoutsMetadata[layoutName] || null;
+  };
+
   useEffect(() => {
-    // Discover available layouts dynamically
+    // Discover available layouts dynamically from manifest
     const initializeLayouts = async () => {
       try {
-        const layouts = await discoverLayouts();
+        const { layouts, metadata } = await discoverLayouts();
         setAvailableLayouts(layouts);
+        setLayoutsMetadata(metadata);
         
         // Load default layout (first available one)
         if (layouts.length > 0) {
@@ -84,6 +131,7 @@ export function useLayout() {
         console.error('Failed to initialize layouts:', error);
         // Fallback
         setAvailableLayouts(['military-standard']);
+        setLayoutsMetadata({});
         loadLayout('military-standard');
       }
     };
@@ -94,8 +142,10 @@ export function useLayout() {
   return {
     layout,
     availableLayouts,
+    layoutsMetadata,
     loading,
     error,
-    loadLayout
+    loadLayout,
+    getLayoutMetadata
   };
 }

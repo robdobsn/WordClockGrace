@@ -1,3 +1,5 @@
+import { LayoutMetadata } from '../hooks/useLayout';
+
 export interface MilitaryTimeWord {
   word: string;
   category: 'hour' | 'minute' | 'military';
@@ -166,17 +168,18 @@ function layoutHasWord(layoutName: string, word: string): boolean {
 }
 
 // Helper function to get appropriate zero representation
-function getZeroWords(layoutName: string): { words: string[], category: string } {
-  if (layoutName === 'Gracegpt4' || layoutName === 'Gracegpt5' || layoutName === 'Gracegpt6' || layoutName === 'Graceopt1') {
-    // Check if we have multiple OH words for double-oh representation
+function getZeroWords(layoutMetadata?: LayoutMetadata | null): { words: string[], category: string } {
+  // For layouts with OH support but no ZERO, use OH OH for 00:xx
+  if (layoutMetadata?.hasOH && !layoutMetadata?.hasZero) {
     return { words: ['OH', 'OH'], category: 'hour' }; // For 00:xx = OH OH xx
   }
   return { words: ['ZERO'], category: 'hour' };
 }
 
 // Helper function to get OH prefix for single-digit hours (01-09)
-function getOHPrefix(layoutName: string, hour: number): { words: string[], category: string } | null {
-  if ((layoutName === 'Gracegpt4' || layoutName === 'Gracegpt5' || layoutName === 'Gracegpt6' || layoutName === 'Graceopt1') && hour >= 1 && hour <= 9) {
+function getOHPrefix(layoutMetadata: LayoutMetadata | null | undefined, hour: number): { words: string[], category: string } | null {
+  // For layouts with OH support, add OH prefix for 01-09:xx
+  if (layoutMetadata?.hasOH && hour >= 1 && hour <= 9) {
     // For 01-09, prepend OH (e.g., 02:20 = OH TWO TWENTY)
     return { words: ['OH'], category: 'hour' };
   }
@@ -184,15 +187,16 @@ function getOHPrefix(layoutName: string, hour: number): { words: string[], categ
 }
 
 // Helper function to get appropriate minute connector
-function getMinuteConnector(layoutName: string, minute: number): { words: string[], category: string } | null {
-  if ((layoutName === 'Gracegpt4' || layoutName === 'Gracegpt5' || layoutName === 'Gracegpt6' || layoutName === 'Graceopt1') && minute === 5) {
+function getMinuteConnector(layoutMetadata: LayoutMetadata | null | undefined, minute: number): { words: string[], category: string } | null {
+  // For layouts with OH support, use OH connector for XX:05
+  if (layoutMetadata?.hasOH && minute === 5) {
     // For xx:05 = OH FIVE (using vertical OH as connector)
     return { words: ['OH'], category: 'connector' };
   }
   return null;
 }
 
-export function convertToMilitaryTime(hours: number, minutes: number, layoutName?: string): MilitaryTimeWords {
+export function convertToMilitaryTime(hours: number, minutes: number, layoutName?: string, layoutMetadata?: LayoutMetadata | null): MilitaryTimeWords {
   // Round minutes to nearest 5
   const roundedMinutes = Math.round(minutes / 5) * 5;
   
@@ -209,16 +213,16 @@ export function convertToMilitaryTime(hours: number, minutes: number, layoutName
   const wordsWithCategory: MilitaryTimeWord[] = [];
   let description = '';
   
-  // Choose word mappings based on layout
+  // Choose word mappings based on layout metadata
   let hourWordsMap = HOUR_WORDS;
   let minuteWordsMap = MINUTE_WORDS;
   
-  if (layoutName === 'Crossword One') {
+  if (layoutMetadata?.wordMappings === 'crossword') {
     minuteWordsMap = CROSSWORD_MINUTE_WORDS;
-  } else if (layoutName === 'GraceGPT' || layoutName === 'GraceGPT2') {
+  } else if (layoutMetadata?.wordMappings === 'gracegpt') {
     hourWordsMap = GRACEGPT_HOUR_WORDS;
     minuteWordsMap = GRACEGPT_MINUTE_WORDS;
-  } else if (layoutName === 'Auto Layout' || layoutName === 'Updated Layout' || layoutName === 'Gracegpt4' || layoutName === 'Gracegpt5' || layoutName === 'Gracegpt6' || layoutName === 'Graceopt1') {
+  } else if (layoutMetadata?.wordMappings === 'fragment') {
     // Use fragment-based mappings for auto-generated layouts
     hourWordsMap = FRAGMENT_HOUR_WORDS;
     minuteWordsMap = FRAGMENT_MINUTE_WORDS;
@@ -230,7 +234,7 @@ export function convertToMilitaryTime(hours: number, minutes: number, layoutName
   
   // Handle zero hour specially for layouts with OH
   if (adjustedHours === 0) {
-    const zeroRepresentation = getZeroWords(layoutName || '');
+    const zeroRepresentation = getZeroWords(layoutMetadata);
     allHourWords = zeroRepresentation.words;
     words.push(...allHourWords);
     allHourWords.forEach(word => {
@@ -238,7 +242,7 @@ export function convertToMilitaryTime(hours: number, minutes: number, layoutName
     });
   } else {
     // Check for OH prefix for single-digit hours (01-09)
-    const ohPrefix = getOHPrefix(layoutName || '', adjustedHours);
+    const ohPrefix = getOHPrefix(layoutMetadata, adjustedHours);
     if (ohPrefix) {
       words.push(...ohPrefix.words);
       allHourWords.push(...ohPrefix.words);
@@ -273,7 +277,7 @@ export function convertToMilitaryTime(hours: number, minutes: number, layoutName
     description = `${allHourWords.join(' ')} hundred`;
   } else {
     // Check for special minute connectors first
-    const minuteConnector = getMinuteConnector(layoutName || '', adjustedMinutes);
+    const minuteConnector = getMinuteConnector(layoutMetadata, adjustedMinutes);
     if (minuteConnector) {
       words.push(...minuteConnector.words);
       minuteConnector.words.forEach(word => {

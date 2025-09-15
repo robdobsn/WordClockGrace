@@ -7,7 +7,7 @@ import { useCurrentTime } from './hooks/useCurrentTime';
 import { FontSettings, TimeSettings } from './types/layout';
 
 function App() {
-  const { layout, availableLayouts, loading, error, loadLayout } = useLayout();
+  const { layout, availableLayouts, layoutsMetadata, loading, error, loadLayout, getLayoutMetadata } = useLayout();
   
   const [timeSettings, setTimeSettings] = useState<TimeSettings>({
     hours: 11,
@@ -98,12 +98,13 @@ function App() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Clock Display - Takes up most space */}
           <div className="lg:col-span-2 flex justify-center">
-            <ClockDisplay
-              layout={layout}
-              hours={timeSettings.hours}
-              minutes={timeSettings.minutes}
-              fontSettings={fontSettings}
-            />
+        <ClockDisplay 
+          layout={layout}
+          hours={timeSettings.hours}
+          minutes={timeSettings.minutes}
+          fontSettings={fontSettings}
+          layoutMetadata={getLayoutMetadata(layout.name.toLowerCase().replace(/\s+/g, '-'))}
+        />
           </div>
 
           {/* Controls */}

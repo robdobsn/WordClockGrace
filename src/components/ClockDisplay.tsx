@@ -2,12 +2,14 @@ import React from 'react';
 import { ClockLayout, FontSettings, WordPosition } from '../types/layout';
 import { convertToMilitaryTime } from '../utils/militaryTime';
 import { generateMilitaryCondensedGrid, generateCrosswordGrid, generateGraceGPTGrid, generateGraceGPT2Grid, generateAutoLayoutGrid } from '../utils/gridGenerator';
+import { LayoutMetadata } from '../hooks/useLayout';
 
 interface ClockDisplayProps {
   layout: ClockLayout;
   hours: number;
   minutes: number;
   fontSettings: FontSettings;
+  layoutMetadata?: LayoutMetadata | null;
 }
 
 interface LetterGridProps {
@@ -20,9 +22,10 @@ interface CategorizedLetterGridProps {
   layout: ClockLayout;
   activeWordsWithCategory: Array<{word: string, category: 'hour' | 'minute' | 'military'}>;
   fontSettings: FontSettings;
+  layoutMetadata?: LayoutMetadata | null;
 }
 
-function createLetterGrid(layout: ClockLayout): string[][] {
+function createLetterGrid(layout: ClockLayout, layoutMetadata?: LayoutMetadata | null): string[][] {
   // Use pre-generated grid for military-condensed layout
   if (layout.name === 'Military Condensed') {
     return generateMilitaryCondensedGrid();
@@ -43,8 +46,8 @@ function createLetterGrid(layout: ClockLayout): string[][] {
     return generateGraceGPT2Grid();
   }
   
-  // For Auto Layout, Updated Layout, Gracegpt4, Gracegpt5, Gracegpt6, and Graceopt1, use the JSON word positions if available
-  if ((layout.name === 'Auto Layout' || layout.name === 'Updated Layout' || layout.name === 'Gracegpt4' || layout.name === 'Gracegpt5' || layout.name === 'Gracegpt6' || layout.name === 'Graceopt1') && layout.words.length > 0) {
+  // Use JSON-based grid generation for layouts with metadata indicating this capability
+  if (layoutMetadata?.gridGeneration === 'json-based' && layout.words.length > 0) {
     // Use the word positions from the JSON layout
     const grid: string[][] = Array(layout.gridHeight)
       .fill(null)
@@ -67,13 +70,13 @@ function createLetterGrid(layout: ClockLayout): string[][] {
     return grid;
   }
   
-  // Fallback to hardcoded grid for Auto Layout if no words data
+  // Fallback for layouts without JSON data
   if (layout.name === 'Auto Layout' || layout.name === 'Updated Layout') {
     return generateAutoLayoutGrid();
   }
   
-  // For Gracegpt4, Gracegpt5, Gracegpt6, and Graceopt1, if no words data, create empty grid
-  if (layout.name === 'Gracegpt4' || layout.name === 'Gracegpt5' || layout.name === 'Gracegpt6' || layout.name === 'Graceopt1') {
+  // Emergency fallback - create empty grid if no other option works
+  if (layoutMetadata?.gridGeneration === 'json-based') {
     return Array(layout.gridHeight || 12)
       .fill(null)
       .map(() => Array(layout.gridWidth || 12).fill(' '));
@@ -170,9 +173,9 @@ function getPositionsFromWordInstance(wordInstance: any, word: string): Array<{r
   return positions;
 }
 
-function getLetterPositions(layout: ClockLayout, word: string, preferredCategory?: 'hour' | 'minute' | 'military' | 'connector'): Array<{row: number, col: number}> {
+function getLetterPositions(layout: ClockLayout, word: string, preferredCategory?: 'hour' | 'minute' | 'military' | 'connector', layoutMetadata?: LayoutMetadata | null): Array<{row: number, col: number}> {
   // For layouts that support categories, use category-based priority
-  if (preferredCategory && (layout.name === 'Auto Layout' || layout.name === 'Updated Layout' || layout.name === 'Gracegpt4' || layout.name === 'Gracegpt5' || layout.name === 'Gracegpt6' || layout.name === 'Graceopt1')) {
+  if (preferredCategory && layoutMetadata?.hasCategories) {
     return findWordWithCategoryPriority(layout, word, preferredCategory);
   }
   
@@ -192,13 +195,13 @@ function getLetterPositions(layout: ClockLayout, word: string, preferredCategory
   return positions;
 }
 
-const CategorizedLetterGrid: React.FC<CategorizedLetterGridProps> = ({ layout, activeWordsWithCategory, fontSettings }) => {
-  const grid = createLetterGrid(layout);
+const CategorizedLetterGrid: React.FC<CategorizedLetterGridProps> = ({ layout, activeWordsWithCategory, fontSettings, layoutMetadata }) => {
+  const grid = createLetterGrid(layout, layoutMetadata);
   
   // Get all active letter positions using category information
   const activePositions = new Set<string>();
   activeWordsWithCategory.forEach(({ word, category }) => {
-    const positions = getLetterPositions(layout, word, category);
+    const positions = getLetterPositions(layout, word, category, layoutMetadata);
     positions.forEach(pos => {
       activePositions.add(`${pos.row}-${pos.col}`);
     });
@@ -304,9 +307,10 @@ const ClockDisplay: React.FC<ClockDisplayProps> = ({
   layout, 
   hours, 
   minutes, 
-  fontSettings 
+  fontSettings,
+  layoutMetadata 
 }) => {
-  const militaryTime = convertToMilitaryTime(hours, minutes, layout.name);
+  const militaryTime = convertToMilitaryTime(hours, minutes, layout.name, layoutMetadata);
   
   return (
     <div className="flex flex-col items-center space-y-4">
@@ -319,11 +323,12 @@ const ClockDisplay: React.FC<ClockDisplayProps> = ({
         </p>
       </div>
       
-      {(layout.name === 'Auto Layout' || layout.name === 'Updated Layout' || layout.name === 'Gracegpt4' || layout.name === 'Gracegpt5' || layout.name === 'Gracegpt6' || layout.name === 'Graceopt1') ? (
+      {layoutMetadata?.hasCategories ? (
         <CategorizedLetterGrid 
           layout={layout}
           activeWordsWithCategory={militaryTime.wordsWithCategory}
           fontSettings={fontSettings}
+          layoutMetadata={layoutMetadata}
         />
       ) : (
         <LetterGrid 

@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
+    "dev": "npm run build-layouts && vite",
+    "build": "npm run build-layouts && tsc && vite build",
+    "preview": "vite preview",
+    "build-layouts": "node scripts/build-layouts.cjs"
   },
   "dependencies": {
     "react": "^18.2.0",
