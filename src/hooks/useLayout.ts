@@ -127,16 +127,38 @@ export function useLayout() {
         setAvailableLayouts(layouts);
         setLayoutsMetadata(metadata);
         
-        // Load default layout (first available one)
+        // Load default layout (prefer gracegpt3a, fallback to first available)
         if (layouts.length > 0) {
-          loadLayout(layouts[0]);
+          const preferredLayout = 'gracegpt3a';
+          const defaultLayout = layouts.includes(preferredLayout) ? preferredLayout : layouts[0];
+          loadLayout(defaultLayout);
         }
       } catch (error) {
         console.error('Failed to initialize layouts:', error);
-        // Fallback
-        setAvailableLayouts(['military-standard']);
-        setLayoutsMetadata({});
-        loadLayout('military-standard');
+        // Fallback - try gracegpt3a first, then military-standard
+        const fallbackLayouts = ['gracegpt3a', 'military-standard'];
+        let loadedFallback = false;
+        
+        for (const fallbackLayout of fallbackLayouts) {
+          try {
+            const response = await fetch(`/layouts/${fallbackLayout}.json`);
+            if (response.ok) {
+              setAvailableLayouts([fallbackLayout]);
+              setLayoutsMetadata({});
+              loadLayout(fallbackLayout);
+              loadedFallback = true;
+              break;
+            }
+          } catch {
+            // Continue to next fallback
+          }
+        }
+        
+        if (!loadedFallback) {
+          setAvailableLayouts(['military-standard']);
+          setLayoutsMetadata({});
+          loadLayout('military-standard');
+        }
       }
     };
     
