@@ -19,7 +19,12 @@ export interface FontSettings {
   weight: string;
   size: number;
   letterSpacing: number;
-  lineHeight: number;
+  cellSpacingX: number;
+  cellSpacingY: number;
+  margin: number;
+  useVectorPaths: boolean;
+  addBorder: boolean;
+  addGridLines: boolean;
 }
 
 export interface TimeSettings {

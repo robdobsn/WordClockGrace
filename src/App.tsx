@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ClockDisplay from './components/ClockDisplay';
 import TimeControls from './components/TimeControls';
 import FontControls from './components/FontControls';
+import DXFExport from './components/DXFExport';
 import { useLayout } from './hooks/useLayout';
 import { useCurrentTime } from './hooks/useCurrentTime';
 import { FontSettings, TimeSettings } from './types/layout';
@@ -20,7 +21,12 @@ function App() {
     weight: '700',
     size: 24,
     letterSpacing: 0.1,
-    lineHeight: 1.2
+    cellSpacingX: 12,
+    cellSpacingY: 12,
+    margin: 20,
+    useVectorPaths: true,
+    addBorder: true,
+    addGridLines: false
   });
 
   const currentTime = useCurrentTime(timeSettings.useCurrentTime);
@@ -119,6 +125,8 @@ function App() {
               fontSettings={fontSettings}
               onFontChange={setFontSettings}
             />
+            
+            <DXFExport layout={layout} fontSettings={fontSettings} />
           </div>
         </div>
 

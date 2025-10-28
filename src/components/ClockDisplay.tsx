@@ -224,7 +224,6 @@ const CategorizedLetterGrid: React.FC<CategorizedLetterGridProps> = ({ layout, a
     fontWeight: fontSettings.weight,
     fontSize: `${fontSettings.size}px`,
     letterSpacing: `${fontSettings.letterSpacing}em`,
-    lineHeight: fontSettings.lineHeight,
   };
   
   return (
@@ -233,7 +232,7 @@ const CategorizedLetterGrid: React.FC<CategorizedLetterGridProps> = ({ layout, a
       style={letterStyle}
     >
       {grid.map((row, rowIndex) => (
-        <div key={rowIndex} className="flex">
+        <div key={rowIndex} className="flex" style={{ gap: `${fontSettings.cellSpacingX}px`, marginBottom: `${fontSettings.cellSpacingY}px` }}>
           {row.map((letter, colIndex) => {
             const isActive = activePositions.has(`${rowIndex}-${colIndex}`);
             const isEmpty = letter === ' ';
@@ -247,8 +246,11 @@ const CategorizedLetterGrid: React.FC<CategorizedLetterGridProps> = ({ layout, a
                   ${isEmpty ? 'invisible' : 'visible'}
                 `}
                 style={{
-                  width: `${fontSettings.size * 0.8}px`,
-                  height: `${fontSettings.size * fontSettings.lineHeight}px`,
+                  width: `${fontSettings.cellSpacingX}px`,
+                  height: `${fontSettings.cellSpacingY}px`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
               >
                 {letter}
@@ -278,7 +280,6 @@ const LetterGrid: React.FC<LetterGridProps> = ({ layout, activeWords, fontSettin
     fontWeight: fontSettings.weight,
     fontSize: `${fontSettings.size}px`,
     letterSpacing: `${fontSettings.letterSpacing}em`,
-    lineHeight: fontSettings.lineHeight,
   };
   
   return (
@@ -287,7 +288,7 @@ const LetterGrid: React.FC<LetterGridProps> = ({ layout, activeWords, fontSettin
       style={letterStyle}
     >
       {grid.map((row, rowIndex) => (
-        <div key={rowIndex} className="flex">
+        <div key={rowIndex} className="flex" style={{ gap: `${fontSettings.cellSpacingX}px`, marginBottom: `${fontSettings.cellSpacingY}px` }}>
           {row.map((letter, colIndex) => {
             const isActive = activePositions.has(`${rowIndex}-${colIndex}`);
             const isEmpty = letter === ' ';
@@ -301,8 +302,11 @@ const LetterGrid: React.FC<LetterGridProps> = ({ layout, activeWords, fontSettin
                   ${isEmpty ? 'invisible' : 'visible'}
                 `}
                 style={{
-                  width: `${fontSettings.size * 0.8}px`,
-                  height: `${fontSettings.size * fontSettings.lineHeight}px`,
+                  width: `${fontSettings.cellSpacingX}px`,
+                  height: `${fontSettings.cellSpacingY}px`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
               >
                 {letter}
