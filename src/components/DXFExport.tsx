@@ -29,10 +29,18 @@ function mapFontFamilyToFontName(fontFamily: string): string {
 const DXFExport: React.FC<DXFExportProps> = ({ layout, fontSettings }) => {
   const [filename, setFilename] = useState('wordclock-grid');
   const [isExporting, setIsExporting] = useState(false);
+  const [testMode, setTestMode] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    window.clearTimeout((showToast as any)._t);
+    (showToast as any)._t = window.setTimeout(() => setToast(null), 3000);
+  };
 
   const handleExport = async () => {
     if (!filename.trim()) {
-      alert('Please enter a filename');
+      showToast('Please enter a filename', 'error');
       return;
     }
 
@@ -48,39 +56,71 @@ const DXFExport: React.FC<DXFExportProps> = ({ layout, fontSettings }) => {
         fontName: mapFontFamilyToFontName(fontSettings.family),
         useVectorPaths: fontSettings.useVectorPaths,
         addBorder: fontSettings.addBorder,
-        addGridLines: fontSettings.addGridLines
+        addGridLines: fontSettings.addGridLines,
+        testMode: testMode
       };
 
       await downloadDXF(layout, filename, config);
-      // Show success message
-      alert(`DXF file "${filename}.dxf" has been downloaded!`);
+      // Show success message (non-blocking toast)
+      showToast(`DXF file "${filename}.dxf" downloaded`,'success');
     } catch (error) {
       console.error('Export error:', error);
-      alert('Error exporting DXF file. Please try again.');
+      showToast('Error exporting DXF file. Please try again.','error');
     } finally {
       setIsExporting(false);
     }
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md border">
+    <div className="bg-white p-4 rounded-lg shadow-md border relative">
+      {toast && (
+        <div
+          role="status"
+          className={`absolute right-3 top-3 px-3 py-2 rounded text-sm shadow transition-opacity ${
+            toast.type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
+          }`}
+        >
+          {toast.message}
+        </div>
+      )}
       <h3 className="text-lg font-semibold mb-4 text-gray-800">Export to DXF</h3>
       
       <div className="space-y-4">
-        {/* Filename input */}
-        <div>
-          <label htmlFor="filename" className="block text-sm font-medium text-gray-700 mb-1">
-            Filename
-          </label>
-          <input
-            id="filename"
-            type="text"
-            value={filename}
-            onChange={(e) => setFilename(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter filename (without .dxf extension)"
-          />
-        </div>
+            {/* Filename input */}
+            <div>
+              <label htmlFor="filename" className="block text-sm font-medium text-gray-700 mb-1">
+                Filename
+              </label>
+              <input
+                id="filename"
+                type="text"
+                value={filename}
+                onChange={(e) => setFilename(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter filename (without .dxf extension)"
+              />
+            </div>
+
+            {/* Test Mode Toggle */}
+            <div>
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={testMode}
+                  onChange={(e) => setTestMode(e.target.checked)}
+                  className="rounded"
+                />
+                <span className="text-sm text-gray-700">
+                  Test Mode (Single Letter "A")
+                </span>
+              </label>
+              <p className="text-xs text-gray-500 mt-1">
+                {testMode 
+                  ? "Will create a single letter 'A' as vector path for testing DXF structure" 
+                  : "Will create the full word clock grid with vector font paths"
+                }
+              </p>
+            </div>
 
         {/* Export button */}
         <button

@@ -97,7 +97,7 @@ export async function loadFont(fontName: string): Promise<opentype.Font | null> 
     return font;
   } catch (error) {
     console.error(`Failed to load font ${fontName} from ${config.url}:`, error);
-    console.log('Error details:', error.message);
+    console.log('Error details:', error instanceof Error ? error.message : String(error));
     
     // Try to load a fallback font
     if (fontName !== 'Arial') {
@@ -120,7 +120,7 @@ export async function getFont(fontName: string): Promise<opentype.Font | null> {
 // Create a simple fallback font for testing when no fonts are available
 export function createFallbackFont(): any {
   return {
-    charToGlyph: (char: string) => {
+    charToGlyph: () => {
       // Create simple rectangular glyphs for testing
       const glyph = {
         getPath: (x: number, y: number, fontSize: number) => {
@@ -137,7 +137,15 @@ export function createFallbackFont(): any {
             { type: 'L', x: x + width * 0.2, y: y },
             { type: 'Z' }
           ];
-          return { commands };
+          return { 
+            commands,
+            getBoundingBox: () => ({
+              x1: x,
+              y1: y,
+              x2: x + width,
+              y2: y + height
+            })
+          };
         }
       };
       return glyph;
@@ -164,16 +172,15 @@ export function extractGlyphPath(font: opentype.Font, char: string, fontSize: nu
 }
 
 // Convert OpenType path to DXF entities as closed polylines for laser cutting
-export function pathToDXFEntities(path: opentype.Path, offsetX: number, offsetY: number): string[] {
+export function pathToDXFEntities(path: opentype.Path, offsetX: number, offsetY: number, startHandle: number = 1000): {entities: string[], nextHandle: number} {
   const entities: string[] = [];
+  let handleCounter = startHandle; // Start with the provided handle number
   
   // OpenType paths have commands array
   if (!path.commands || path.commands.length === 0) {
-    return entities;
+    return {entities, nextHandle: handleCounter};
   }
 
-  // Get the font size to determine the flip factor
-  const fontSize = 10; // Default font size for flipping calculation
 
   // Group commands into separate paths (for letters with holes like 'O', 'A', etc.)
   const pathGroups: Array<Array<{type: string, x: number, y: number, x1?: number, y1?: number, x2?: number, y2?: number}>> = [];
@@ -185,7 +192,10 @@ export function pathToDXFEntities(path: opentype.Path, offsetX: number, offsetY:
       pathGroups.push([...currentPath]);
       currentPath = [];
     }
-    currentPath.push(command);
+    // Only push commands that have x,y coordinates
+    if (command.type !== 'Z') {
+      currentPath.push(command as any);
+    }
   }
   if (currentPath.length > 0) {
     pathGroups.push(currentPath);
@@ -198,32 +208,28 @@ export function pathToDXFEntities(path: opentype.Path, offsetX: number, offsetY:
     const polylinePoints: Array<{x: number, y: number}> = [];
     let currentX = 0;
     let currentY = 0;
-    let startX = 0;
-    let startY = 0;
 
-    for (const command of pathGroup) {
-      switch (command.type) {
-        case 'M': // MoveTo
-          currentX = command.x + offsetX;
-          currentY = -command.y + offsetY; // Flip Y coordinate for DXF
-          startX = currentX;
-          startY = currentY;
-          polylinePoints.push({ x: currentX, y: currentY });
-          break;
+  for (const command of pathGroup) {
+    switch (command.type) {
+      case 'M': // MoveTo
+        currentX = (command as any).x + offsetX;
+        currentY = -(command as any).y + offsetY; // Flip Y coordinate for DXF
+        polylinePoints.push({ x: currentX, y: currentY });
+        break;
 
-        case 'L': // LineTo
-          currentX = command.x + offsetX;
-          currentY = -command.y + offsetY; // Flip Y coordinate for DXF
-          polylinePoints.push({ x: currentX, y: currentY });
-          break;
+      case 'L': // LineTo
+        currentX = (command as any).x + offsetX;
+        currentY = -(command as any).y + offsetY; // Flip Y coordinate for DXF
+        polylinePoints.push({ x: currentX, y: currentY });
+        break;
 
         case 'C': // CurveTo (cubic bezier)
-          const cp1X = command.x1! + offsetX;
-          const cp1Y = -command.y1! + offsetY; // Flip Y coordinate for DXF
-          const cp2X = command.x2! + offsetX;
-          const cp2Y = -command.y2! + offsetY; // Flip Y coordinate for DXF
-          const endX = command.x + offsetX;
-          const endY = -command.y + offsetY; // Flip Y coordinate for DXF
+          const cp1X = (command as any).x1! + offsetX;
+          const cp1Y = -(command as any).y1! + offsetY; // Flip Y coordinate for DXF
+          const cp2X = (command as any).x2! + offsetX;
+          const cp2Y = -(command as any).y2! + offsetY; // Flip Y coordinate for DXF
+          const endX = (command as any).x + offsetX;
+          const endY = -(command as any).y + offsetY; // Flip Y coordinate for DXF
           
           // Convert cubic bezier to points
           const bezierPoints = cubicBezierToPoints(
@@ -244,10 +250,10 @@ export function pathToDXFEntities(path: opentype.Path, offsetX: number, offsetY:
           break;
 
         case 'Q': // Quadratic curve
-          const qcpX = command.x1! + offsetX;
-          const qcpY = -command.y1! + offsetY; // Flip Y coordinate for DXF
-          const qendX = command.x + offsetX;
-          const qendY = -command.y + offsetY; // Flip Y coordinate for DXF
+          const qcpX = (command as any).x1! + offsetX;
+          const qcpY = -(command as any).y1! + offsetY; // Flip Y coordinate for DXF
+          const qendX = (command as any).x + offsetX;
+          const qendY = -(command as any).y + offsetY; // Flip Y coordinate for DXF
           
           // Convert quadratic bezier to points
           const quadPoints = quadraticBezierToPoints(
@@ -283,32 +289,29 @@ export function pathToDXFEntities(path: opentype.Path, offsetX: number, offsetY:
       }
     }
 
-    // Create closed polyline from the points
-    if (polylinePoints.length >= 2) {
-      entities.push(createDXFPolyline(polylinePoints, true)); // true = closed
-    }
+      // Create closed polyline from the points
+      if (polylinePoints.length >= 2) {
+        const handle = handleCounter.toString(16).toUpperCase().padStart(4, '0');
+        entities.push(createDXFPolyline(polylinePoints, true, handle)); // true = closed
+        handleCounter++;
+      }
   }
 
-  return entities;
+  return {entities, nextHandle: handleCounter};
 }
 
-// Helper function to create DXF LINE entity
-function createDXFLine(x1: number, y1: number, x2: number, y2: number): string {
-  return [
-    '0', 'LINE',
-    '8', '0', // layer
-    '10', x1.toString(), '20', y1.toString(), '30', '0',
-    '11', x2.toString(), '21', y2.toString(), '31', '0'
-  ].join('\n');
-}
 
 // Helper function to create DXF LWPOLYLINE entity (closed polyline for letter outlines)
-function createDXFPolyline(points: Array<{x: number, y: number}>, closed: boolean): string {
+export function createDXFPolyline(points: Array<{x: number, y: number}>, closed: boolean, handle: string = '3'): string {
   const entity: string[] = [
     '0', 'LWPOLYLINE',
+    '5', handle, // handle
     '8', '0', // layer
+    '100', 'AcDbEntity', // subclass marker
+    '100', 'AcDbPolyline', // required subclass marker for LWPOLYLINE
     '70', closed ? '1' : '0', // closed flag
-    '90', points.length.toString() // number of vertices
+    '90', points.length.toString(), // number of vertices
+    '43', '0' // constant width (0 = no width)
   ];
 
   // Add vertex coordinates

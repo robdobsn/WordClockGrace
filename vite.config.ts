@@ -7,7 +7,9 @@ export default defineConfig({
   server: {
     headers: {
       'Access-Control-Allow-Origin': '*',
-    }
+    },
+    host: true,
+    strictPort: true
   },
   assetsInclude: ['**/*.ttf', '**/*.otf', '**/*.woff', '**/*.woff2'],
   publicDir: 'public',
