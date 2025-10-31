@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getFont, extractGlyphPath, createFallbackFont } from '../utils/fontPathExtractor';
-import { pathToSVGNoFlip } from '../utils/svgPathConverter';
+import { pathToSVG } from '../utils/svgPathConverter';
 import { FontSettings } from '../types/layout';
 
 // Map CSS font families to font file names (same as DXFExport)
@@ -78,17 +78,20 @@ const VectorLetterCell: React.FC<VectorLetterCellProps> = ({
             const cx = cellWidth / 2;
             const cy = cellHeight / 2;
             
-            // Center horizontally
+            // Center horizontally (same as DXF)
             const offsetX = cx - (bounds.x1 + bounds.x2) / 2;
             
-            // For SVG: no Y-flip, direct positioning with inverted Y offset
-            // SVG Y increases downward, OpenType Y increases upward
-            // To position glyph center at cy from top: offsetY = cy - glyphCenterY
-            // But OpenType Y increases upward, so we need to invert
+            // For SVG (Y increases downward, origin at top):
+            // We need to position the glyph so its center is at cy from the top
+            // OpenType Y increases upward, so we need to flip
+            // After flipping: y_svg = -y_opentype + offsetY
+            // We want: glyphCenter_svg = cy
+            // So: -(bounds.y1 + bounds.y2)/2 + offsetY = cy
+            // Therefore: offsetY = cy + (bounds.y1 + bounds.y2)/2
             const offsetY = cy + (bounds.y1 + bounds.y2) / 2;
             
-            // Convert to SVG path WITHOUT Y flipping - let CSS handle the coordinate system
-            const svgPathData = pathToSVGNoFlip(path, offsetX, offsetY);
+            // Convert to SVG path with Y flipping
+            const svgPathData = pathToSVG(path, offsetX, offsetY);
             
             // Debug: Log the calculations
             const glyphCenterY = (bounds.y1 + bounds.y2) / 2;
@@ -125,19 +128,20 @@ const VectorLetterCell: React.FC<VectorLetterCellProps> = ({
     <svg
       width={`${cellWidth}mm`}
       height={`${cellHeight}mm`}
-      viewBox={`0 0 ${cellWidth} ${cellHeight}`}
+      viewBox={`0 ${-cellHeight} ${cellWidth} ${cellHeight}`}
       style={{
         display: 'block',
         overflow: 'visible',
-        transform: 'scaleY(-1)',
       }}
     >
-      <path
-        d={svgPath}
-        fill={isActive ? '#ffffff' : '#6b7280'}
-        stroke="none"
-        className="transition-all duration-300"
-      />
+      <g transform={`scale(1, -1)`}>
+        <path
+          d={svgPath}
+          fill={isActive ? '#ffffff' : '#6b7280'}
+          stroke="none"
+          className="transition-all duration-300"
+        />
+      </g>
     </svg>
   );
 };
