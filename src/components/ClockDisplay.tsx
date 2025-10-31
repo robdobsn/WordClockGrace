@@ -3,6 +3,7 @@ import { ClockLayout, FontSettings, WordPosition } from '../types/layout';
 import { convertToMilitaryTime } from '../utils/militaryTime';
 import { generateMilitaryCondensedGrid, generateCrosswordGrid, generateGraceGPTGrid, generateGraceGPT2Grid, generateAutoLayoutGrid } from '../utils/gridGenerator';
 import { LayoutMetadata } from '../hooks/useLayout';
+import VectorLetterCell from './VectorLetterCell';
 
 interface ClockDisplayProps {
   layout: ClockLayout;
@@ -219,42 +220,26 @@ const CategorizedLetterGrid: React.FC<CategorizedLetterGridProps> = ({ layout, a
     });
   });
   
-  const letterStyle = {
-    fontFamily: fontSettings.family,
-    fontWeight: fontSettings.weight,
-    fontSize: `${Math.max(0, fontSettings.cellSpacingY * (1 - 2 * fontSettings.letterPaddingPercent))}mm`,
-    
-  };
-  
   return (
     <div 
       className="inline-block border-2 border-gray-300 p-4 bg-black"
-      style={letterStyle}
     >
       {grid.map((row, rowIndex) => (
-        <div key={rowIndex} className="flex" style={{ gap: `${fontSettings.cellSpacingX}mm`, marginBottom: `${fontSettings.cellSpacingY}mm` }}>
+        <div key={rowIndex} className="flex" style={{ gap: '0mm', marginBottom: '0mm' }}>
           {row.map((letter, colIndex) => {
             const isActive = activePositions.has(`${rowIndex}-${colIndex}`);
             const isEmpty = letter === ' ';
             
             return (
-              <span
+              <VectorLetterCell
                 key={`${rowIndex}-${colIndex}`}
-                className={`
-                  inline-block text-center transition-all duration-300
-                  ${isActive ? 'text-white' : 'text-gray-700'}
-                  ${isEmpty ? 'invisible' : 'visible'}
-                `}
-                style={{
-                  width: `${fontSettings.cellSpacingX}mm`,
-                  height: `${fontSettings.cellSpacingY}mm`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                {letter}
-              </span>
+                letter={letter}
+                isActive={isActive}
+                isEmpty={isEmpty}
+                fontSettings={fontSettings}
+                cellWidth={fontSettings.cellSpacingX}
+                cellHeight={fontSettings.cellSpacingY}
+              />
             );
           })}
         </div>
@@ -275,42 +260,26 @@ const LetterGrid: React.FC<LetterGridProps> = ({ layout, activeWords, fontSettin
     });
   });
   
-  const letterStyle = {
-    fontFamily: fontSettings.family,
-    fontWeight: fontSettings.weight,
-    fontSize: `${fontSettings.size}mm`,
-    
-  };
-  
   return (
     <div 
       className="inline-block border-2 border-gray-300 p-4 bg-black"
-      style={letterStyle}
     >
       {grid.map((row, rowIndex) => (
-        <div key={rowIndex} className="flex" style={{ gap: `${fontSettings.cellSpacingX}mm`, marginBottom: `${fontSettings.cellSpacingY}mm` }}>
+        <div key={rowIndex} className="flex" style={{ gap: '0mm', marginBottom: '0mm' }}>
           {row.map((letter, colIndex) => {
             const isActive = activePositions.has(`${rowIndex}-${colIndex}`);
             const isEmpty = letter === ' ';
             
             return (
-              <span
+              <VectorLetterCell
                 key={`${rowIndex}-${colIndex}`}
-                className={`
-                  inline-block text-center transition-all duration-300
-                  ${isActive ? 'text-white' : 'text-gray-700'}
-                  ${isEmpty ? 'invisible' : 'visible'}
-                `}
-                style={{
-                  width: `${fontSettings.cellSpacingX}mm`,
-                  height: `${fontSettings.cellSpacingY}mm`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                {letter}
-              </span>
+                letter={letter}
+                isActive={isActive}
+                isEmpty={isEmpty}
+                fontSettings={fontSettings}
+                cellWidth={fontSettings.cellSpacingX}
+                cellHeight={fontSettings.cellSpacingY}
+              />
             );
           })}
         </div>
