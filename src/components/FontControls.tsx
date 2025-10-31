@@ -111,6 +111,52 @@ const FontControls: React.FC<FontControlsProps> = ({ fontSettings, onFontChange 
           </div>
         </div>
 
+        {/* Horizontal Stretch and W Stretch - Compact Grid */}
+        <div className="grid grid-cols-2 gap-2">
+          {/* Horizontal Stretch */}
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              H. Stretch: {fontSettings.horizontalStretch.toFixed(2)}x
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="range"
+                min="0.5"
+                max="2.0"
+                step="0.05"
+                value={fontSettings.horizontalStretch}
+                onChange={(e) => handleChange('horizontalStretch', parseFloat(e.target.value))}
+                className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              />
+              <input
+                type="number"
+                min={0.5}
+                max={2.0}
+                step={0.05}
+                value={fontSettings.horizontalStretch.toFixed(2)}
+                onChange={(e) => handleChange('horizontalStretch', Math.max(0.5, Math.min(2.0, parseFloat(e.target.value))))}
+                className="w-14 px-1 py-1 text-xs border border-gray-300 rounded"
+              />
+            </div>
+          </div>
+
+          {/* W Stretch */}
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              W Stretch: {fontSettings.wStretch.toFixed(2)}x
+            </label>
+            <input
+              type="number"
+              min={0.5}
+              max={1.5}
+              step={0.05}
+              value={fontSettings.wStretch.toFixed(2)}
+              onChange={(e) => handleChange('wStretch', Math.max(0.5, Math.min(1.5, parseFloat(e.target.value))))}
+              className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+
         {/* Cell Spacing - Compact Grid */}
         <div className="grid grid-cols-2 gap-2">
           {/* Cell Spacing X (mm) */}
@@ -195,8 +241,20 @@ const FontControls: React.FC<FontControlsProps> = ({ fontSettings, onFontChange 
           </div>
         </div>
 
-        {/* Export Options - Compact Checkboxes */}
+        {/* Display Options - Compact Checkboxes */}
         <div className="flex flex-wrap gap-x-4 gap-y-1 pt-1">
+          <label className="flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={fontSettings.centerHorizontally}
+              onChange={(e) => handleChange('centerHorizontally', e.target.checked)}
+              className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-1"
+            />
+            <span className="ml-1 text-xs text-gray-700">
+              Center Horizontally
+            </span>
+          </label>
+          
           <label className="flex items-center cursor-pointer">
             <input
               type="checkbox"

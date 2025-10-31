@@ -54,6 +54,9 @@ const DXFExport: React.FC<DXFExportProps> = ({ layout, fontSettings }) => {
         gridSpacingY: fontSettings.cellSpacingY, // Y (mm)
         margin: fontSettings.margin,
         letterPaddingPercent: fontSettings.letterPaddingPercent,
+        horizontalStretch: fontSettings.horizontalStretch,
+        wStretch: fontSettings.wStretch,
+        centerHorizontally: fontSettings.centerHorizontally,
         fontName: mapFontFamilyToFontName(fontSettings.family),
         useVectorPaths: fontSettings.useVectorPaths,
         addBorder: fontSettings.addBorder,

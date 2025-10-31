@@ -172,7 +172,7 @@ export function extractGlyphPath(font: opentype.Font, char: string, fontSize: nu
 }
 
 // Convert OpenType path to DXF entities as closed polylines for laser cutting
-export function pathToDXFEntities(path: opentype.Path, offsetX: number, offsetY: number, startHandle: number = 1000): {entities: string[], nextHandle: number} {
+export function pathToDXFEntities(path: opentype.Path, offsetX: number, offsetY: number, startHandle: number = 1000, horizontalStretch: number = 1.0): {entities: string[], nextHandle: number} {
   const entities: string[] = [];
   let handleCounter = startHandle; // Start with the provided handle number
   
@@ -212,23 +212,23 @@ export function pathToDXFEntities(path: opentype.Path, offsetX: number, offsetY:
   for (const command of pathGroup) {
     switch (command.type) {
       case 'M': // MoveTo
-        currentX = (command as any).x + offsetX;
+        currentX = (command as any).x * horizontalStretch + offsetX;
         currentY = -(command as any).y + offsetY; // Flip Y coordinate for DXF
         polylinePoints.push({ x: currentX, y: currentY });
         break;
 
       case 'L': // LineTo
-        currentX = (command as any).x + offsetX;
+        currentX = (command as any).x * horizontalStretch + offsetX;
         currentY = -(command as any).y + offsetY; // Flip Y coordinate for DXF
         polylinePoints.push({ x: currentX, y: currentY });
         break;
 
         case 'C': // CurveTo (cubic bezier)
-          const cp1X = (command as any).x1! + offsetX;
+          const cp1X = (command as any).x1! * horizontalStretch + offsetX;
           const cp1Y = -(command as any).y1! + offsetY; // Flip Y coordinate for DXF
-          const cp2X = (command as any).x2! + offsetX;
+          const cp2X = (command as any).x2! * horizontalStretch + offsetX;
           const cp2Y = -(command as any).y2! + offsetY; // Flip Y coordinate for DXF
-          const endX = (command as any).x + offsetX;
+          const endX = (command as any).x * horizontalStretch + offsetX;
           const endY = -(command as any).y + offsetY; // Flip Y coordinate for DXF
           
           // Convert cubic bezier to points
@@ -250,9 +250,9 @@ export function pathToDXFEntities(path: opentype.Path, offsetX: number, offsetY:
           break;
 
         case 'Q': // Quadratic curve
-          const qcpX = (command as any).x1! + offsetX;
+          const qcpX = (command as any).x1! * horizontalStretch + offsetX;
           const qcpY = -(command as any).y1! + offsetY; // Flip Y coordinate for DXF
-          const qendX = (command as any).x + offsetX;
+          const qendX = (command as any).x * horizontalStretch + offsetX;
           const qendY = -(command as any).y + offsetY; // Flip Y coordinate for DXF
           
           // Convert quadratic bezier to points

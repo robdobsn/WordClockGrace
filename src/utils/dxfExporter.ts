@@ -40,6 +40,9 @@ interface DXFConfig {
   useVectorPaths: boolean;   // Use vector font paths instead of text entities
   testMode: boolean;         // Test mode - output simple shapes only
   letterPaddingPercent?: number; // Per-side margin as % of cell height
+  horizontalStretch?: number;    // Horizontal stretch factor (default 1.0)
+  wStretch?: number;             // Additional stretch factor for W character (default 1.0)
+  centerHorizontally?: boolean;  // Center letters horizontally in cells (default true)
 }
 
 const defaultConfig: DXFConfig = {
@@ -53,6 +56,9 @@ const defaultConfig: DXFConfig = {
   useVectorPaths: true,
   testMode: false,
   letterPaddingPercent: 0.1,
+  horizontalStretch: 1.0,
+  wStretch: 1.0,
+  centerHorizontally: true,
 };
 
 // Entities-only DXF (the variant that worked in Fusion 360)
@@ -305,15 +311,35 @@ async function addVectorPaths(
           const path = extractGlyphPath(font, letter, fontSizeForTarget);
           if (!path) throw new Error('Failed to build scaled glyph path');
 
-          // Calculate glyph bounds to center it properly
+          // Calculate glyph bounds to position it properly
           const bounds = (path as any).getBoundingBox();
           
-          // Center the glyph within the cell
-          const offsetX = cx - (bounds.x1 + bounds.x2) / 2;
+          // Apply horizontal stretch including W-specific stretch
+          const baseStretch = config.horizontalStretch ?? 1.0;
+          const wStretch = config.wStretch ?? 1.0;
+          const isW = letter.toUpperCase() === 'W';
+          const horizontalStretch = isW ? baseStretch * wStretch : baseStretch;
+          
+          // Account for horizontal stretch in bounds calculation
+          // Since we apply stretch to coordinates, we need to adjust bounds accordingly
+          const stretchedBounds = {
+            x1: bounds.x1 * horizontalStretch,
+            x2: bounds.x2 * horizontalStretch,
+            y1: bounds.y1,
+            y2: bounds.y2
+          };
+          
+          // Horizontal positioning - center or left-align
+          const centerHorizontally = config.centerHorizontally ?? true;
+          const offsetX = centerHorizontally
+            ? cx - (stretchedBounds.x1 + stretchedBounds.x2) / 2  // Center horizontally
+            : config.margin + col * spacingX - stretchedBounds.x1;  // Left-align to cell left edge
+          
+          // Vertical positioning - always center
           const offsetY = cy - (bounds.y1 + bounds.y2) / 2;
           
-          // Convert path to DXF entities with proper centering
-          const result = pathToDXFEntities(path, offsetX, offsetY, handleCounter.value);
+          // Convert path to DXF entities with positioning and stretch
+          const result = pathToDXFEntities(path, offsetX, offsetY, handleCounter.value, horizontalStretch);
           const lineEntities = convertPolylinesToLines(result.entities, handleCounter);
           entities.push(...lineEntities);
           handleCounter.value = result.nextHandle;

@@ -71,16 +71,31 @@ const VectorLetterCell: React.FC<VectorLetterCellProps> = ({
             const path = extractGlyphPath(workingFont, letter, fontSizeForTarget);
             if (!path) throw new Error('Failed to build scaled glyph path');
 
-            // Calculate glyph bounds to center it properly
+            // Calculate glyph bounds to position it properly
             const bounds = (path as any).getBoundingBox();
             
             // Use cell center
             const cx = cellWidth / 2;
             const cy = cellHeight / 2;
             
-            // Center horizontally (same as DXF)
-            const offsetX = cx - (bounds.x1 + bounds.x2) / 2;
+            // Calculate effective horizontal stretch including W-specific stretch
+            const baseStretch = fontSettings.horizontalStretch || 1.0;
+            const wStretch = fontSettings.wStretch || 1.0;
+            const isW = letter.toUpperCase() === 'W';
+            const effectiveStretch = isW ? baseStretch * wStretch : baseStretch;
             
+            // Horizontal positioning - center or left-align
+            // Since SVG scale transform is applied AFTER positioning, we need to account for it
+            // The transform is: scale(effectiveStretch, -1)
+            // For centering: we want the scaled glyph center to be at cx
+            // Formula: (glyphCenter + offsetX) * stretch = cx
+            // Therefore: offsetX = cx/stretch - glyphCenter
+            const glyphCenterX = (bounds.x1 + bounds.x2) / 2;
+            const offsetX = fontSettings.centerHorizontally 
+              ? cx / effectiveStretch - glyphCenterX  // Center horizontally (accounting for scale)
+              : -bounds.x1;  // Left-align to x=0 (no scale adjustment needed for left edge)
+            
+            // Vertical positioning - always center
             // For SVG (Y increases downward, origin at top):
             // We need to position the glyph so its center is at cy from the top
             // OpenType Y increases upward, so we need to flip
@@ -124,6 +139,12 @@ const VectorLetterCell: React.FC<VectorLetterCellProps> = ({
     );
   }
 
+  // Calculate total horizontal stretch including W-specific stretch
+  const baseStretch = fontSettings.horizontalStretch || 1.0;
+  const wStretch = fontSettings.wStretch || 1.0;
+  const isW = letter.toUpperCase() === 'W';
+  const horizontalStretch = isW ? baseStretch * wStretch : baseStretch;
+  
   return (
     <svg
       viewBox={`0 ${-cellHeight} ${cellWidth} ${cellHeight}`}
@@ -135,7 +156,7 @@ const VectorLetterCell: React.FC<VectorLetterCellProps> = ({
         overflow: 'visible',
       }}
     >
-      <g transform={`scale(1, -1)`}>
+      <g transform={`scale(${horizontalStretch}, -1)`}>
         <path
           d={svgPath}
           fill={isActive ? '#ffffff' : '#6b7280'}

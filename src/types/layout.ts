@@ -22,6 +22,9 @@ export interface FontSettings {
   cellSpacingY: number;
   margin: number;
   letterPaddingPercent: number;
+  horizontalStretch: number;
+  wStretch: number;
+  centerHorizontally: boolean;
   useVectorPaths: boolean;
   addBorder: boolean;
   addGridLines: boolean;

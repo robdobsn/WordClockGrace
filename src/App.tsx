@@ -24,6 +24,9 @@ function App() {
     cellSpacingY: 3,
     margin: 2,
     letterPaddingPercent: 0.1,
+    horizontalStretch: 1.0,
+    wStretch: 1.0,
+    centerHorizontally: true,
     useVectorPaths: true,
     addBorder: true,
     addGridLines: false

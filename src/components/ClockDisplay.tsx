@@ -220,11 +220,16 @@ const CategorizedLetterGrid: React.FC<CategorizedLetterGridProps> = ({ layout, a
     });
   });
   
+  // Calculate aspect ratio based on actual cell dimensions
+  const totalWidth = layout.gridWidth * fontSettings.cellSpacingX;
+  const totalHeight = layout.gridHeight * fontSettings.cellSpacingY;
+  const aspectRatio = totalWidth / totalHeight;
+  
   return (
     <div 
       className="inline-block border-2 border-gray-300 p-2 sm:p-4 bg-black w-full max-w-full"
       style={{
-        aspectRatio: `${layout.gridWidth} / ${layout.gridHeight}`,
+        aspectRatio: aspectRatio.toString(),
       }}
     >
       {grid.map((row, rowIndex) => (
@@ -263,11 +268,16 @@ const LetterGrid: React.FC<LetterGridProps> = ({ layout, activeWords, fontSettin
     });
   });
   
+  // Calculate aspect ratio based on actual cell dimensions
+  const totalWidth = layout.gridWidth * fontSettings.cellSpacingX;
+  const totalHeight = layout.gridHeight * fontSettings.cellSpacingY;
+  const aspectRatio = totalWidth / totalHeight;
+  
   return (
     <div 
       className="inline-block border-2 border-gray-300 p-2 sm:p-4 bg-black w-full max-w-full"
       style={{
-        aspectRatio: `${layout.gridWidth} / ${layout.gridHeight}`,
+        aspectRatio: aspectRatio.toString(),
       }}
     >
       {grid.map((row, rowIndex) => (
