@@ -104,8 +104,16 @@ const FontControls: React.FC<FontControlsProps> = ({ fontSettings, onFontChange 
               min={0}
               max={40}
               step={0.5}
-              value={(fontSettings.letterPaddingPercent * 100).toFixed(1)}
-              onChange={(e) => handleChange('letterPaddingPercent', Math.max(0, Math.min(40, parseFloat(e.target.value))) / 100)}
+              value={fontSettings.letterPaddingPercent * 100}
+              onChange={(e) => {
+                const val = parseFloat(e.target.value);
+                if (!isNaN(val)) handleChange('letterPaddingPercent', val / 100);
+              }}
+              onBlur={(e) => {
+                const val = parseFloat(e.target.value);
+                if (isNaN(val)) handleChange('letterPaddingPercent', 0.1);
+                else handleChange('letterPaddingPercent', Math.max(0, Math.min(40, val)) / 100);
+              }}
               className="w-14 px-1 py-1 text-xs border border-gray-300 rounded"
             />
           </div>
@@ -133,8 +141,16 @@ const FontControls: React.FC<FontControlsProps> = ({ fontSettings, onFontChange 
                 min={0.5}
                 max={2.0}
                 step={0.05}
-                value={fontSettings.horizontalStretch.toFixed(2)}
-                onChange={(e) => handleChange('horizontalStretch', Math.max(0.5, Math.min(2.0, parseFloat(e.target.value))))}
+                value={fontSettings.horizontalStretch}
+                onChange={(e) => {
+                  const val = parseFloat(e.target.value);
+                  if (!isNaN(val)) handleChange('horizontalStretch', val);
+                }}
+                onBlur={(e) => {
+                  const val = parseFloat(e.target.value);
+                  if (isNaN(val)) handleChange('horizontalStretch', 1.0);
+                  else handleChange('horizontalStretch', Math.max(0.5, Math.min(2.0, val)));
+                }}
                 className="w-14 px-1 py-1 text-xs border border-gray-300 rounded"
               />
             </div>
@@ -150,8 +166,16 @@ const FontControls: React.FC<FontControlsProps> = ({ fontSettings, onFontChange 
               min={0.5}
               max={1.5}
               step={0.05}
-              value={fontSettings.wStretch.toFixed(2)}
-              onChange={(e) => handleChange('wStretch', Math.max(0.5, Math.min(1.5, parseFloat(e.target.value))))}
+              value={fontSettings.wStretch}
+              onChange={(e) => {
+                const val = parseFloat(e.target.value);
+                if (!isNaN(val)) handleChange('wStretch', val);
+              }}
+              onBlur={(e) => {
+                const val = parseFloat(e.target.value);
+                if (isNaN(val)) handleChange('wStretch', 1.0);
+                else handleChange('wStretch', Math.max(0.5, Math.min(1.5, val)));
+              }}
               className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
             />
           </div>
@@ -179,8 +203,16 @@ const FontControls: React.FC<FontControlsProps> = ({ fontSettings, onFontChange 
                 min={2}
                 max={5}
                 step={0.1}
-                value={fontSettings.cellSpacingX.toFixed(1)}
-                onChange={(e) => handleChange('cellSpacingX', parseFloat(e.target.value))}
+                value={fontSettings.cellSpacingX}
+                onChange={(e) => {
+                  const val = parseFloat(e.target.value);
+                  if (!isNaN(val)) handleChange('cellSpacingX', val);
+                }}
+                onBlur={(e) => {
+                  const val = parseFloat(e.target.value);
+                  if (isNaN(val)) handleChange('cellSpacingX', 3);
+                  else handleChange('cellSpacingX', Math.max(2, Math.min(5, val)));
+                }}
                 className="w-12 px-1 py-1 text-xs border border-gray-300 rounded"
               />
             </div>
@@ -206,8 +238,16 @@ const FontControls: React.FC<FontControlsProps> = ({ fontSettings, onFontChange 
                 min={2}
                 max={5}
                 step={0.1}
-                value={fontSettings.cellSpacingY.toFixed(1)}
-                onChange={(e) => handleChange('cellSpacingY', parseFloat(e.target.value))}
+                value={fontSettings.cellSpacingY}
+                onChange={(e) => {
+                  const val = parseFloat(e.target.value);
+                  if (!isNaN(val)) handleChange('cellSpacingY', val);
+                }}
+                onBlur={(e) => {
+                  const val = parseFloat(e.target.value);
+                  if (isNaN(val)) handleChange('cellSpacingY', 3);
+                  else handleChange('cellSpacingY', Math.max(2, Math.min(5, val)));
+                }}
                 className="w-12 px-1 py-1 text-xs border border-gray-300 rounded"
               />
             </div>
@@ -234,8 +274,16 @@ const FontControls: React.FC<FontControlsProps> = ({ fontSettings, onFontChange 
               min={0}
               max={5}
               step={0.1}
-              value={fontSettings.margin.toFixed(1)}
-              onChange={(e) => handleChange('margin', parseFloat(e.target.value))}
+              value={fontSettings.margin}
+              onChange={(e) => {
+                const val = parseFloat(e.target.value);
+                if (!isNaN(val)) handleChange('margin', val);
+              }}
+              onBlur={(e) => {
+                const val = parseFloat(e.target.value);
+                if (isNaN(val)) handleChange('margin', 2);
+                else handleChange('margin', Math.max(0, Math.min(5, val)));
+              }}
               className="w-14 px-1 py-1 text-xs border border-gray-300 rounded"
             />
           </div>
@@ -252,18 +300,6 @@ const FontControls: React.FC<FontControlsProps> = ({ fontSettings, onFontChange 
             />
             <span className="ml-1 text-xs text-gray-700">
               Center Horizontally
-            </span>
-          </label>
-          
-          <label className="flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              checked={fontSettings.useVectorPaths}
-              onChange={(e) => handleChange('useVectorPaths', e.target.checked)}
-              className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-1"
-            />
-            <span className="ml-1 text-xs text-gray-700">
-              Vector Paths
             </span>
           </label>
           

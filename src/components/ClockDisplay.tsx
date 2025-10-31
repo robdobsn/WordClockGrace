@@ -225,9 +225,15 @@ const CategorizedLetterGrid: React.FC<CategorizedLetterGridProps> = ({ layout, a
   const totalHeight = layout.gridHeight * fontSettings.cellSpacingY;
   const aspectRatio = totalWidth / totalHeight;
   
+  // Calculate border and grid line styles
+  const borderClass = fontSettings.addBorder ? 'border-2 border-gray-300' : 'border-0';
+  const cellBorderStyle = fontSettings.addGridLines 
+    ? { borderRight: '1px solid #444', borderBottom: '1px solid #444' }
+    : {};
+  
   return (
     <div 
-      className="inline-block border-2 border-gray-300 p-2 sm:p-4 bg-black w-full max-w-full"
+      className={`inline-block ${borderClass} p-2 sm:p-4 bg-black w-full max-w-full`}
       style={{
         aspectRatio: aspectRatio.toString(),
       }}
@@ -239,15 +245,23 @@ const CategorizedLetterGrid: React.FC<CategorizedLetterGridProps> = ({ layout, a
             const isEmpty = letter === ' ';
             
             return (
-              <VectorLetterCell
+              <div
                 key={`${rowIndex}-${colIndex}`}
-                letter={letter}
-                isActive={isActive}
-                isEmpty={isEmpty}
-                fontSettings={fontSettings}
-                cellWidth={fontSettings.cellSpacingX}
-                cellHeight={fontSettings.cellSpacingY}
-              />
+                style={{
+                  flex: '1 1 0',
+                  height: '100%',
+                  ...cellBorderStyle,
+                }}
+              >
+                <VectorLetterCell
+                  letter={letter}
+                  isActive={isActive}
+                  isEmpty={isEmpty}
+                  fontSettings={fontSettings}
+                  cellWidth={fontSettings.cellSpacingX}
+                  cellHeight={fontSettings.cellSpacingY}
+                />
+              </div>
             );
           })}
         </div>
@@ -273,9 +287,15 @@ const LetterGrid: React.FC<LetterGridProps> = ({ layout, activeWords, fontSettin
   const totalHeight = layout.gridHeight * fontSettings.cellSpacingY;
   const aspectRatio = totalWidth / totalHeight;
   
+  // Calculate border and grid line styles
+  const borderClass = fontSettings.addBorder ? 'border-2 border-gray-300' : 'border-0';
+  const cellBorderStyle = fontSettings.addGridLines 
+    ? { borderRight: '1px solid #444', borderBottom: '1px solid #444' }
+    : {};
+  
   return (
     <div 
-      className="inline-block border-2 border-gray-300 p-2 sm:p-4 bg-black w-full max-w-full"
+      className={`inline-block ${borderClass} p-2 sm:p-4 bg-black w-full max-w-full`}
       style={{
         aspectRatio: aspectRatio.toString(),
       }}
@@ -287,15 +307,23 @@ const LetterGrid: React.FC<LetterGridProps> = ({ layout, activeWords, fontSettin
             const isEmpty = letter === ' ';
             
             return (
-              <VectorLetterCell
+              <div
                 key={`${rowIndex}-${colIndex}`}
-                letter={letter}
-                isActive={isActive}
-                isEmpty={isEmpty}
-                fontSettings={fontSettings}
-                cellWidth={fontSettings.cellSpacingX}
-                cellHeight={fontSettings.cellSpacingY}
-              />
+                style={{
+                  flex: '1 1 0',
+                  height: '100%',
+                  ...cellBorderStyle,
+                }}
+              >
+                <VectorLetterCell
+                  letter={letter}
+                  isActive={isActive}
+                  isEmpty={isEmpty}
+                  fontSettings={fontSettings}
+                  cellWidth={fontSettings.cellSpacingX}
+                  cellHeight={fontSettings.cellSpacingY}
+                />
+              </div>
             );
           })}
         </div>

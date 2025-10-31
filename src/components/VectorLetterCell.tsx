@@ -85,15 +85,20 @@ const VectorLetterCell: React.FC<VectorLetterCellProps> = ({
             const effectiveStretch = isW ? baseStretch * wStretch : baseStretch;
             
             // Horizontal positioning - center or left-align
-            // Since SVG scale transform is applied AFTER positioning, we need to account for it
-            // The transform is: scale(effectiveStretch, -1)
-            // For centering: we want the scaled glyph center to be at cx
-            // Formula: (glyphCenter + offsetX) * stretch = cx
-            // Therefore: offsetX = cx/stretch - glyphCenter
             const glyphCenterX = (bounds.x1 + bounds.x2) / 2;
-            const offsetX = fontSettings.centerHorizontally 
-              ? cx / effectiveStretch - glyphCenterX  // Center horizontally (accounting for scale)
-              : -bounds.x1;  // Left-align to x=0 (no scale adjustment needed for left edge)
+            
+            let offsetX;
+            if (fontSettings.centerHorizontally) {
+              // Center horizontally
+              // The SVG transform scale(effectiveStretch, -1) is applied to the path coordinates
+              // After transform: x_final = (x + offsetX) * stretch
+              // We want glyph center to be at cx: (glyphCenterX + offsetX) * stretch = cx
+              // Therefore: offsetX = cx / stretch - glyphCenterX
+              offsetX = cx / effectiveStretch - glyphCenterX;
+            } else {
+              // Left-align (align left edge of glyph to x=0)
+              offsetX = -bounds.x1;
+            }
             
             // Vertical positioning - always center
             // For SVG (Y increases downward, origin at top):
@@ -110,7 +115,7 @@ const VectorLetterCell: React.FC<VectorLetterCellProps> = ({
             
             // Debug: Log the calculations
             const glyphCenterY = (bounds.y1 + bounds.y2) / 2;
-            console.log(`${letter}: cellHeight=${cellHeight.toFixed(2)}, targetHeight=${targetHeight.toFixed(2)}, mheight=${mheight.toFixed(2)}, fontSize=${fontSizeForTarget.toFixed(2)}, bounds=(${bounds.x1.toFixed(2)},${bounds.y1.toFixed(2)})-(${bounds.x2.toFixed(2)},${bounds.y2.toFixed(2)}), boundsHeight=${(bounds.y2-bounds.y1).toFixed(2)}, glyphCenterY=${glyphCenterY.toFixed(2)}, cy=${cy.toFixed(2)}, offsetY=${offsetY.toFixed(2)}`);
+            console.log(`${letter}: centered=${fontSettings.centerHorizontally}, stretch=${effectiveStretch.toFixed(2)}, cx=${cx.toFixed(2)}, glyphCenterX=${glyphCenterX.toFixed(2)}, offsetX=${offsetX.toFixed(2)}, bounds.x=(${bounds.x1.toFixed(2)},${bounds.x2.toFixed(2)})`);
             
             setSvgPath(svgPathData);
           } catch (error) {
@@ -125,13 +130,13 @@ const VectorLetterCell: React.FC<VectorLetterCellProps> = ({
     }
 
     loadAndConvert();
-  }, [letter, isEmpty, fontName, cellWidth, cellHeight, fontSettings.letterPaddingPercent]);
+  }, [letter, isEmpty, fontName, cellWidth, cellHeight, fontSettings.letterPaddingPercent, fontSettings.centerHorizontally, fontSettings.horizontalStretch, fontSettings.wStretch]);
 
   if (isEmpty || letter === ' ') {
     return (
       <span
         style={{
-          flex: '1 1 0',
+          width: '100%',
           height: '100%',
           display: 'inline-block',
         }}
@@ -150,7 +155,7 @@ const VectorLetterCell: React.FC<VectorLetterCellProps> = ({
       viewBox={`0 ${-cellHeight} ${cellWidth} ${cellHeight}`}
       preserveAspectRatio="xMidYMid meet"
       style={{
-        flex: '1 1 0',
+        width: '100%',
         height: '100%',
         display: 'block',
         overflow: 'visible',
