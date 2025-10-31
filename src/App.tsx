@@ -17,15 +17,15 @@ function App() {
   });
 
   const [fontSettings, setFontSettings] = useState<FontSettings>({
-    family: 'Monaco, Menlo, Ubuntu Mono, monospace',
+    family: 'Ruler Stencil Regular, Arial, sans-serif',
     weight: '700',
     size: 2,
-    cellSpacingX: 3,
+    cellSpacingX: 2.5,
     cellSpacingY: 3,
     margin: 2,
     letterPaddingPercent: 0.1,
-    horizontalStretch: 1.0,
-    wStretch: 1.0,
+    horizontalStretch: 1.55,
+    wStretch: 0.9,
     centerHorizontally: true,
     useVectorPaths: true,
     addBorder: true,

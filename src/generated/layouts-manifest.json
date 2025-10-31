@@ -1,5 +1,5 @@
 {
-  "generated": "2025-10-31T00:42:50.197Z",
+  "generated": "2025-10-31T09:21:21.570Z",
   "layouts": [
     {
       "name": "auto-layout",
@@ -323,6 +323,35 @@
       ]
     },
     {
+      "name": "gracegpt7",
+      "displayName": "Gracegpt7",
+      "description": "Generated from C:\\Users\\rob\\Documents\\rdev\\WordClockGrace\\grids\\gracegpt7.txt",
+      "gridWidth": 12,
+      "gridHeight": 11,
+      "wordCount": 30,
+      "features": [
+        "oh-prefix",
+        "zero-word",
+        "fragment-words",
+        "category-based"
+      ],
+      "wordMappings": "fragment",
+      "gridGeneration": "json-based",
+      "hasOH": true,
+      "hasZero": true,
+      "hasFragments": true,
+      "hasCategories": true,
+      "minuteGranularity": "five-minute",
+      "minuteWords": [
+        "TEN",
+        "TWENTY",
+        "THIRTY",
+        "FORTY",
+        "FIFTY",
+        "FIVE"
+      ]
+    },
+    {
       "name": "graceopt1",
       "displayName": "Graceopt1",
       "description": "Generated from grids/graceopt1.txt",
@@ -520,10 +549,10 @@
     }
   ],
   "summary": {
-    "total": 17,
-    "withOH": 12,
-    "withZero": 10,
-    "withFragments": 13,
-    "withCategories": 17
+    "total": 18,
+    "withOH": 13,
+    "withZero": 11,
+    "withFragments": 14,
+    "withCategories": 18
   }
 }

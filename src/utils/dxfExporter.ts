@@ -47,17 +47,17 @@ interface DXFConfig {
 
 const defaultConfig: DXFConfig = {
   letterSize: 10,
-  gridSpacing: 12,
-  gridSpacingY: 12,
-  margin: 20,
-  fontName: 'Arial',
+  gridSpacing: 2.5,
+  gridSpacingY: 3,
+  margin: 2,
+  fontName: 'Ruler Stencil Regular',
   addBorder: true,
   addGridLines: false,
   useVectorPaths: true,
   testMode: false,
   letterPaddingPercent: 0.1,
-  horizontalStretch: 1.0,
-  wStretch: 1.0,
+  horizontalStretch: 1.55,
+  wStretch: 0.9,
   centerHorizontally: true,
 };
 
@@ -229,12 +229,15 @@ export async function exportGridToDXF(layout: ClockLayout, filename: string, con
     // Skip letter generation if vector paths are disabled
   }
 
-  // Border
+  // Border - draw rectangle around the grid area
   if (finalConfig.addBorder) {
+    // Border should align with the outer edges of the grid cells
+    // Grid spans from margin to (margin + gridWidth*spacingX) in X
+    // and from margin to (margin + gridHeight*spacingY) in Y
     const x = finalConfig.margin;
     const y = finalConfig.margin;
-    const w = totalWidth - (2 * finalConfig.margin);
-    const h = totalHeight - (2 * finalConfig.margin);
+    const w = layout.gridWidth * spacingX;
+    const h = layout.gridHeight * spacingY;
     
     const handle1 = handleCounter.value.toString(16).toUpperCase().padStart(4, '0');
     handleCounter.value++;
@@ -245,10 +248,11 @@ export async function exportGridToDXF(layout: ClockLayout, filename: string, con
     const handle4 = handleCounter.value.toString(16).toUpperCase().padStart(4, '0');
     handleCounter.value++;
     
-    entities.push(dxfLine(x, y, x + w, y, handle1));
-    entities.push(dxfLine(x + w, y, x + w, y + h, handle2));
-    entities.push(dxfLine(x + w, y + h, x, y + h, handle3));
-    entities.push(dxfLine(x, y + h, x, y, handle4));
+    // Draw border rectangle: bottom, right, top, left
+    entities.push(dxfLine(x, y, x + w, y, handle1));         // Bottom edge
+    entities.push(dxfLine(x + w, y, x + w, y + h, handle2)); // Right edge  
+    entities.push(dxfLine(x + w, y + h, x, y + h, handle3)); // Top edge
+    entities.push(dxfLine(x, y + h, x, y, handle4));         // Left edge
   }
 
   console.log('Building DXF with', entities.length, 'entities');
@@ -336,7 +340,8 @@ async function addVectorPaths(
             : config.margin + col * spacingX - stretchedBounds.x1;  // Left-align to cell left edge
           
           // Vertical positioning - always center
-          const offsetY = cy - (bounds.y1 + bounds.y2) / 2;
+          // Note: We negate Y coordinates in pathToDXFEntities, so we need to add (not subtract) the bounds center
+          const offsetY = cy + (bounds.y1 + bounds.y2) / 2;
           
           // Convert path to DXF entities with positioning and stretch
           const result = pathToDXFEntities(path, offsetX, offsetY, handleCounter.value, horizontalStretch);

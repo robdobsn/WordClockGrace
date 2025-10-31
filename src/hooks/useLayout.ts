@@ -127,16 +127,16 @@ export function useLayout() {
         setAvailableLayouts(layouts);
         setLayoutsMetadata(metadata);
         
-        // Load default layout (prefer gracegpt3a, fallback to first available)
+        // Load default layout
         if (layouts.length > 0) {
-          const preferredLayout = 'gracegpt3a';
+          const preferredLayout = 'gracegpt7';
           const defaultLayout = layouts.includes(preferredLayout) ? preferredLayout : layouts[0];
           loadLayout(defaultLayout);
         }
       } catch (error) {
         console.error('Failed to initialize layouts:', error);
-        // Fallback - try gracegpt3a first, then military-standard
-        const fallbackLayouts = ['gracegpt3a', 'military-standard'];
+        // Fallbacks 
+        const fallbackLayouts = ['gracegpt7', 'military-standard'];
         let loadedFallback = false;
         
         for (const fallbackLayout of fallbackLayouts) {
