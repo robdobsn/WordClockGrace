@@ -18,10 +18,10 @@ export interface FontSettings {
   family: string;
   weight: string;
   size: number;
-  letterSpacing: number;
   cellSpacingX: number;
   cellSpacingY: number;
   margin: number;
+  letterPaddingPercent: number;
   useVectorPaths: boolean;
   addBorder: boolean;
   addGridLines: boolean;

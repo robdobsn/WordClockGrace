@@ -30,25 +30,29 @@ function createLetterGrid(layout: ClockLayout): string[][] {
 
 // DXF export configuration
 interface DXFConfig {
-  letterSize: number;        // Height of letters in DXF units
-  gridSpacing: number;       // Spacing between grid cells
+  letterSize: number;        // DEPRECATED in fit-to-cell mode
+  gridSpacing: number;       // X spacing between grid cells (mm)
+  gridSpacingY?: number;     // Y spacing between grid cells (mm)
   margin: number;            // Margin around the entire grid
   fontName: string;          // Font name for path extraction
   addBorder: boolean;        // Draw a border rectangle
   addGridLines: boolean;     // Draw grid lines
   useVectorPaths: boolean;   // Use vector font paths instead of text entities
   testMode: boolean;         // Test mode - output simple shapes only
+  letterPaddingPercent?: number; // Per-side margin as % of cell height
 }
 
 const defaultConfig: DXFConfig = {
   letterSize: 10,
   gridSpacing: 12,
+  gridSpacingY: 12,
   margin: 20,
   fontName: 'Arial',
   addBorder: true,
   addGridLines: false,
   useVectorPaths: true,
   testMode: false,
+  letterPaddingPercent: 0.1,
 };
 
 // Entities-only DXF (the variant that worked in Fusion 360)
@@ -161,8 +165,10 @@ export async function exportGridToDXF(layout: ClockLayout, filename: string, con
     const grid = createLetterGrid(layout);
     console.log('Grid created, size:', grid.length, 'x', grid[0]?.length);
 
-  const totalWidth = (layout.gridWidth * finalConfig.gridSpacing) + (2 * finalConfig.margin);
-  const totalHeight = (layout.gridHeight * finalConfig.gridSpacing) + (2 * finalConfig.margin);
+  const spacingX = finalConfig.gridSpacing;
+  const spacingY = finalConfig.gridSpacingY ?? finalConfig.gridSpacing;
+  const totalWidth = (layout.gridWidth * spacingX) + (2 * finalConfig.margin);
+  const totalHeight = (layout.gridHeight * spacingY) + (2 * finalConfig.margin);
 
   const entities: string[] = [];
   const handleCounter = { value: 10 }; // Use object to pass by reference
@@ -171,14 +177,14 @@ export async function exportGridToDXF(layout: ClockLayout, filename: string, con
   if (finalConfig.addGridLines) {
     // Vertical lines
     for (let col = 0; col <= layout.gridWidth; col++) {
-      const x = finalConfig.margin + (col * finalConfig.gridSpacing);
+      const x = finalConfig.margin + (col * spacingX);
       const handle = handleCounter.value.toString(16).toUpperCase().padStart(4, '0');
       entities.push(dxfLine(x, finalConfig.margin, x, totalHeight - finalConfig.margin, handle));
       handleCounter.value++;
     }
     // Horizontal lines
     for (let row = 0; row <= layout.gridHeight; row++) {
-      const y = finalConfig.margin + (row * finalConfig.gridSpacing);
+      const y = finalConfig.margin + (row * spacingY);
       const handle = handleCounter.value.toString(16).toUpperCase().padStart(4, '0');
       entities.push(dxfLine(finalConfig.margin, y, totalWidth - finalConfig.margin, y, handle));
       handleCounter.value++;
@@ -279,15 +285,28 @@ async function addVectorPaths(
 
       // Calculate position (centered in cell)
       // DXF uses bottom-left origin, so we need to flip Y to maintain correct row order
-      const cx = config.margin + (col + 0.5) * config.gridSpacing;
-      const cy = totalHeight - config.margin - (row + 0.5) * config.gridSpacing;
+      const spacingX = config.gridSpacing;
+      const spacingY = config.gridSpacingY ?? config.gridSpacing;
+      const cx = config.margin + (col + 0.5) * spacingX;
+      const cy = totalHeight - config.margin - (row + 0.5) * spacingY;
 
-      // Extract glyph path
-      const path = extractGlyphPath(font, letter, config.letterSize);
-      if (path) {
+      // Fit glyph height to cell height with per-side margin percent
+      const marginPct = Math.max(0, Math.min(0.49, config.letterPaddingPercent ?? 0.1));
+      const targetHeight = spacingY * (1 - 2 * marginPct);
+
+      // Measure glyph at reference size and compute fontSize that yields targetHeight
+      const measurePath = extractGlyphPath(font, letter, 1000);
+      if (measurePath) {
         try {
+          const mbox = (measurePath as any).getBoundingBox();
+          const mheight = Math.max(0.0001, (mbox.y2 - mbox.y1));
+          const fontSizeForTarget = (targetHeight * 1000) / mheight;
+
+          const path = extractGlyphPath(font, letter, fontSizeForTarget);
+          if (!path) throw new Error('Failed to build scaled glyph path');
+
           // Calculate glyph bounds to center it properly
-          const bounds = path.getBoundingBox();
+          const bounds = (path as any).getBoundingBox();
           
           // Center the glyph within the cell
           const offsetX = cx - (bounds.x1 + bounds.x2) / 2;

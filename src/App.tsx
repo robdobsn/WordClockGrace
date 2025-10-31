@@ -19,11 +19,11 @@ function App() {
   const [fontSettings, setFontSettings] = useState<FontSettings>({
     family: 'Monaco, Menlo, Ubuntu Mono, monospace',
     weight: '700',
-    size: 24,
-    letterSpacing: 0.1,
-    cellSpacingX: 12,
-    cellSpacingY: 12,
-    margin: 20,
+    size: 2,
+    cellSpacingX: 3,
+    cellSpacingY: 3,
+    margin: 2,
+    letterPaddingPercent: 0.1,
     useVectorPaths: true,
     addBorder: true,
     addGridLines: false

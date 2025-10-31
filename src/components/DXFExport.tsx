@@ -50,9 +50,10 @@ const DXFExport: React.FC<DXFExportProps> = ({ layout, fontSettings }) => {
       // Convert fontSettings to DXF config format
       const config = {
         letterSize: fontSettings.size,
-        letterSpacing: fontSettings.letterSpacing,
-        gridSpacing: fontSettings.cellSpacingX, // Use X spacing as primary
+        gridSpacing: fontSettings.cellSpacingX, // X (mm)
+        gridSpacingY: fontSettings.cellSpacingY, // Y (mm)
         margin: fontSettings.margin,
+        letterPaddingPercent: fontSettings.letterPaddingPercent,
         fontName: mapFontFamilyToFontName(fontSettings.family),
         useVectorPaths: fontSettings.useVectorPaths,
         addBorder: fontSettings.addBorder,
@@ -140,8 +141,8 @@ const DXFExport: React.FC<DXFExportProps> = ({ layout, fontSettings }) => {
           This will export the current grid layout as a DXF file for use in CAD programs like Fusion 360.
           <span className="block mt-1 text-gray-600">
             Font: {mapFontFamilyToFontName(fontSettings.family)} | 
-            Size: {fontSettings.size}px | 
-            Spacing: {fontSettings.cellSpacingX}×{fontSettings.cellSpacingY}px
+            Letter margin: {(fontSettings.letterPaddingPercent*100).toFixed(2)}% per side | 
+            Spacing: {fontSettings.cellSpacingX}×{fontSettings.cellSpacingY} mm
           </span>
           {fontSettings.useVectorPaths && (
             <span className="block mt-1 text-blue-600">
