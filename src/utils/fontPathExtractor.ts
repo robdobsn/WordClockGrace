@@ -181,7 +181,6 @@ export function pathToDXFEntities(path: opentype.Path, offsetX: number, offsetY:
     return {entities, nextHandle: handleCounter};
   }
 
-
   // Group commands into separate paths (for letters with holes like 'O', 'A', etc.)
   const pathGroups: Array<Array<{type: string, x: number, y: number, x1?: number, y1?: number, x2?: number, y2?: number}>> = [];
   let currentPath: Array<{type: string, x: number, y: number, x1?: number, y1?: number, x2?: number, y2?: number}> = [];
@@ -232,12 +231,13 @@ export function pathToDXFEntities(path: opentype.Path, offsetX: number, offsetY:
           const endY = -(command as any).y + offsetY; // Flip Y coordinate for DXF
           
           // Convert cubic bezier to points
+          // Using 8 segments initially - simplification will optimize further
           const bezierPoints = cubicBezierToPoints(
             currentX, currentY,
             cp1X, cp1Y,
             cp2X, cp2Y,
             endX, endY,
-            12 // More segments for smoother curves
+            8
           );
           
           // Add all points except the first (already added)
@@ -256,11 +256,12 @@ export function pathToDXFEntities(path: opentype.Path, offsetX: number, offsetY:
           const qendY = -(command as any).y + offsetY; // Flip Y coordinate for DXF
           
           // Convert quadratic bezier to points
+          // Using 6 segments initially - simplification will optimize further
           const quadPoints = quadraticBezierToPoints(
             currentX, currentY,
             qcpX, qcpY,
             qendX, qendY,
-            8
+            6
           );
           
           // Add all points except the first (already added)
@@ -291,18 +292,153 @@ export function pathToDXFEntities(path: opentype.Path, offsetX: number, offsetY:
 
       // Create closed polyline from the points
       if (polylinePoints.length >= 2) {
-        const handle = handleCounter.toString(16).toUpperCase().padStart(4, '0');
-        entities.push(createDXFPolyline(polylinePoints, true, handle)); // true = closed
-        handleCounter++;
+        // Validate all points before simplification
+        const validPoints = polylinePoints.filter(p => 
+          !isNaN(p.x) && !isNaN(p.y) && isFinite(p.x) && isFinite(p.y)
+        );
+        
+        if (validPoints.length < 2) {
+          continue;
+        }
+        
+        // Simplify the polyline to reduce point count while maintaining shape
+        let simplifiedPoints = validPoints;
+        try {
+          simplifiedPoints = removeColinearPoints(validPoints, 0.01);
+          simplifiedPoints = simplifyPolyline(simplifiedPoints, 0.02);
+          
+          // Validate simplified points
+          simplifiedPoints = simplifiedPoints.filter(p => 
+            !isNaN(p.x) && !isNaN(p.y) && isFinite(p.x) && isFinite(p.y)
+          );
+        } catch (error) {
+          console.warn('Error during simplification, using original points:', error);
+          simplifiedPoints = validPoints;
+        }
+        
+        // Ensure we still have enough points after simplification
+        if (simplifiedPoints.length >= 2) {
+          const handle = handleCounter.toString(16).toUpperCase().padStart(4, '0');
+          const polyline = createDXFPolyline(simplifiedPoints, true, handle);
+          
+          // Only add non-empty polylines
+          if (polyline && polyline.trim().length > 0) {
+            entities.push(polyline);
+            handleCounter++;
+          }
+        }
       }
   }
 
-  return {entities, nextHandle: handleCounter};
+  // Filter out any empty strings that may have been added
+  const validEntities = entities.filter(e => e && e.trim().length > 0);
+  return {entities: validEntities, nextHandle: handleCounter};
 }
 
 
+// Simplify polyline using Ramer-Douglas-Peucker algorithm
+function simplifyPolyline(points: Array<{x: number, y: number}>, tolerance: number): Array<{x: number, y: number}> {
+  if (points.length <= 2) return points;
+  
+  // Validate all input points
+  const validPoints = points.filter(p => 
+    !isNaN(p.x) && !isNaN(p.y) && isFinite(p.x) && isFinite(p.y)
+  );
+  
+  if (validPoints.length <= 2) return validPoints;
+  
+  // Find the point with maximum distance from the line between first and last
+  let maxDistance = 0;
+  let maxIndex = 0;
+  const first = validPoints[0];
+  const last = validPoints[validPoints.length - 1];
+  
+  for (let i = 1; i < validPoints.length - 1; i++) {
+    const distance = perpendicularDistance(validPoints[i], first, last);
+    if (distance > maxDistance && isFinite(distance)) {
+      maxDistance = distance;
+      maxIndex = i;
+    }
+  }
+  
+  // If max distance is greater than tolerance, recursively simplify
+  if (maxDistance > tolerance) {
+    const left = simplifyPolyline(validPoints.slice(0, maxIndex + 1), tolerance);
+    const right = simplifyPolyline(validPoints.slice(maxIndex), tolerance);
+    
+    // Concatenate, removing duplicate point at junction
+    return [...left.slice(0, -1), ...right];
+  } else {
+    // If all points are within tolerance, just keep first and last
+    return [first, last];
+  }
+}
+
+// Calculate perpendicular distance from point to line segment
+function perpendicularDistance(point: {x: number, y: number}, lineStart: {x: number, y: number}, lineEnd: {x: number, y: number}): number {
+  const dx = lineEnd.x - lineStart.x;
+  const dy = lineEnd.y - lineStart.y;
+  
+  // Handle degenerate case where line start and end are the same
+  if (dx === 0 && dy === 0) {
+    const dist = Math.sqrt(Math.pow(point.x - lineStart.x, 2) + Math.pow(point.y - lineStart.y, 2));
+    return isFinite(dist) ? dist : 0;
+  }
+  
+  // Calculate perpendicular distance using cross product
+  const numerator = Math.abs(dy * point.x - dx * point.y + lineEnd.x * lineStart.y - lineEnd.y * lineStart.x);
+  const denominator = Math.sqrt(dx * dx + dy * dy);
+  
+  if (denominator === 0 || !isFinite(denominator)) return 0;
+  
+  const dist = numerator / denominator;
+  return isFinite(dist) ? dist : 0;
+}
+
+// Remove colinear points (points that lie on a straight line)
+function removeColinearPoints(points: Array<{x: number, y: number}>, tolerance: number = 0.01): Array<{x: number, y: number}> {
+  if (points.length <= 2) return points;
+  
+  // Validate all input points
+  const validPoints = points.filter(p => 
+    !isNaN(p.x) && !isNaN(p.y) && isFinite(p.x) && isFinite(p.y)
+  );
+  
+  if (validPoints.length <= 2) return validPoints;
+  
+  const result: Array<{x: number, y: number}> = [validPoints[0]];
+  
+  for (let i = 1; i < validPoints.length - 1; i++) {
+    const prev = result[result.length - 1];
+    const curr = validPoints[i];
+    const next = validPoints[i + 1];
+    
+    // Calculate if current point is colinear with prev and next
+    const distance = perpendicularDistance(curr, prev, next);
+    
+    // Keep point if it's not colinear (distance > tolerance)
+    if (distance > tolerance) {
+      result.push(curr);
+    }
+  }
+  
+  // Always keep the last point
+  result.push(validPoints[validPoints.length - 1]);
+  
+  return result;
+}
+
 // Helper function to create DXF LWPOLYLINE entity (closed polyline for letter outlines)
 export function createDXFPolyline(points: Array<{x: number, y: number}>, closed: boolean, handle: string = '3'): string {
+  // Filter out any invalid points
+  const validPoints = points.filter(p => 
+    !isNaN(p.x) && !isNaN(p.y) && isFinite(p.x) && isFinite(p.y)
+  );
+  
+  if (validPoints.length < 2) {
+    return ''; // Return empty string for invalid polyline
+  }
+  
   const entity: string[] = [
     '0', 'LWPOLYLINE',
     '5', handle, // handle
@@ -310,14 +446,14 @@ export function createDXFPolyline(points: Array<{x: number, y: number}>, closed:
     '100', 'AcDbEntity', // subclass marker
     '100', 'AcDbPolyline', // required subclass marker for LWPOLYLINE
     '70', closed ? '1' : '0', // closed flag
-    '90', points.length.toString(), // number of vertices
+    '90', validPoints.length.toString(), // number of vertices
     '43', '0' // constant width (0 = no width)
   ];
 
-  // Add vertex coordinates
-  for (const point of points) {
-    entity.push('10', point.x.toString());
-    entity.push('20', point.y.toString());
+  // Add vertex coordinates - ensure numeric values
+  for (const point of validPoints) {
+    entity.push('10', point.x.toFixed(6)); // Fixed precision to avoid floating point artifacts
+    entity.push('20', point.y.toFixed(6));
   }
 
   return entity.join('\n');

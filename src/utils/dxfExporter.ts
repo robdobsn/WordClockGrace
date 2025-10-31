@@ -520,42 +520,67 @@ function convertPolylinesToLines(polylineEntities: string[], handleCounter: { va
   const lineEntities: string[] = [];
   
   for (const entity of polylineEntities) {
+    // Skip empty or invalid entities
+    if (!entity || entity.trim().length === 0) {
+      continue;
+    }
+    
     if (entity.includes('LWPOLYLINE')) {
       // Parse the LWPOLYLINE to extract points
       const lines = entity.split('\n');
       const points: Array<{x: number, y: number}> = [];
-      let isReadingPoints = false;
       
+      // Find where vertex data starts (after the vertex count '90' code)
+      let startIndex = 0;
       for (let i = 0; i < lines.length; i++) {
+        if (lines[i].trim() === '90') {
+          // Skip past the vertex count value and constant width (43, 0)
+          startIndex = i + 2; // Start after '90' and its value
+          break;
+        }
+      }
+      
+      for (let i = startIndex; i < lines.length; i++) {
         const line = lines[i].trim();
         
-        if (line === '10') {
-          isReadingPoints = true;
+        // Look for X coordinate group code '10' followed by a value, then '20' for Y
+        if (line === '10' && i + 3 < lines.length && lines[i + 2].trim() === '20') {
           const x = parseFloat(lines[i + 1]);
           const y = parseFloat(lines[i + 3]);
-          points.push({ x, y });
+          
+          // Validate the coordinates
+          if (!isNaN(x) && !isNaN(y) && isFinite(x) && isFinite(y)) {
+            points.push({ x, y });
+          }
           i += 3; // Skip the next 3 lines (x, 20, y)
         }
       }
       
-      // Convert points to LINE entities
-      for (let i = 0; i < points.length; i++) {
-        const start = points[i];
-        const end = points[(i + 1) % points.length];
-        
-        lineEntities.push([
-          '0','LINE',
-          '5', (handleCounter.value++).toString(16).toUpperCase(),
-          '8','0',
-          '100','AcDbEntity',
-          '100','AcDbLine',
-          '10', start.x.toString(), '20', start.y.toString(), '30','0',
-          '11', end.x.toString(), '21', end.y.toString(), '31','0'
-        ].join('\n'));
+      // Convert points to LINE entities (only if we have valid points)
+      if (points.length >= 2) {
+        for (let i = 0; i < points.length; i++) {
+          const start = points[i];
+          const end = points[(i + 1) % points.length];
+          
+          // Validate both start and end points
+          if (!isNaN(start.x) && !isNaN(start.y) && !isNaN(end.x) && !isNaN(end.y)) {
+            lineEntities.push([
+              '0','LINE',
+              '5', (handleCounter.value++).toString(16).toUpperCase(),
+              '8','0',
+              '100','AcDbEntity',
+              '100','AcDbLine',
+              '10', start.x.toFixed(6), '20', start.y.toFixed(6), '30','0',
+              '11', end.x.toFixed(6), '21', end.y.toFixed(6), '31','0'
+            ].join('\n'));
+          }
+        }
       }
     } else {
-      // Keep non-LWPOLYLINE entities as-is
-      lineEntities.push(entity);
+      // Keep non-LWPOLYLINE entities as-is (if they're valid)
+      if (entity.trim().length > 0) {
+        lineEntities.push(entity);
+      }
     }
   }
   
