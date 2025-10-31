@@ -71,20 +71,20 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
+    <div className="min-h-screen bg-gray-100 flex flex-col">
+      {/* Compact Header */}
       <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold text-gray-900">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2">
+          <div className="flex items-center justify-between gap-3">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
               Word Clock Grace
             </h1>
-            <div className="flex items-center space-x-4">
-              <label className="text-sm font-medium text-gray-700">Layout:</label>
+            <div className="flex items-center gap-2">
+              <label className="text-xs sm:text-sm font-medium text-gray-700 hidden sm:inline">Layout:</label>
               <select
                 value={layout.name.toLowerCase().replace(/\s+/g, '-')}
                 onChange={(e) => loadLayout(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-2 py-1 text-xs sm:text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
               >
                 {availableLayouts.map(layoutName => (
                   <option key={layoutName} value={layoutName}>
@@ -99,22 +99,24 @@ function App() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Clock Display - Takes up most space */}
-          <div className="lg:col-span-2 flex justify-center">
-        <ClockDisplay 
-          layout={layout}
-          hours={timeSettings.hours}
-          minutes={timeSettings.minutes}
-          fontSettings={fontSettings}
-          layoutMetadata={getLayoutMetadata(layout.name.toLowerCase().replace(/\s+/g, '-'))}
-        />
+      {/* Main Content - Flex grow to use available space */}
+      <main className="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-4 py-3">
+        <div className="flex flex-col lg:flex-row gap-3 h-full">
+          {/* Clock Display - Full width up to 600px */}
+          <div className="flex-1 flex justify-center items-start min-w-0">
+            <div className="w-full max-w-[600px]">
+              <ClockDisplay 
+                layout={layout}
+                hours={timeSettings.hours}
+                minutes={timeSettings.minutes}
+                fontSettings={fontSettings}
+                layoutMetadata={getLayoutMetadata(layout.name.toLowerCase().replace(/\s+/g, '-'))}
+              />
+            </div>
           </div>
 
-          {/* Controls */}
-          <div className="lg:col-span-2 space-y-6">
+          {/* Controls - Compact on the right */}
+          <div className="w-full lg:w-80 xl:w-96 space-y-2 flex-shrink-0">
             <TimeControls 
               timeSettings={timeSettings}
               onTimeChange={setTimeSettings}
@@ -127,50 +129,31 @@ function App() {
             />
             
             <DXFExport layout={layout} fontSettings={fontSettings} />
-          </div>
-        </div>
-
-        {/* Layout Info */}
-        <div className="mt-8 bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">
-            Layout Information
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
-            <div>
-              <strong>Name:</strong> {layout.name}
-            </div>
-            <div>
-              <strong>Description:</strong> {layout.description}
-            </div>
-            <div>
-              <strong>Grid Size:</strong> {layout.gridWidth} × {layout.gridHeight}
-            </div>
-            <div>
-              <strong>Total Words:</strong> {layout.words.length}
+            
+            {/* Layout Info - Inline with controls */}
+            <div className="bg-white p-2 rounded-lg shadow-sm border">
+              <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-600">
+                <div><strong>Grid:</strong> {layout.gridWidth}×{layout.gridHeight}</div>
+                <div><strong>Words:</strong> {layout.words.length}</div>
+              </div>
             </div>
           </div>
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-white border-t mt-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="text-center text-sm text-gray-500">
-            <p>
-              Word Clock Grace - Inspired by{' '}
-              <a 
-                href="https://www.qlocktwo.com/en-us" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-800"
-              >
-                QlockTwo
-              </a>
-              {' '}with military time format
-            </p>
-            <p className="mt-1">
-              Experiment with different layouts, fonts, and time displays
-            </p>
+      {/* Compact Footer */}
+      <footer className="bg-white border-t py-2">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4">
+          <div className="text-center text-xs text-gray-500">
+            Word Clock Grace • Inspired by{' '}
+            <a 
+              href="https://www.qlocktwo.com/en-us" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-800"
+            >
+              QlockTwo
+            </a>
           </div>
         </div>
       </footer>

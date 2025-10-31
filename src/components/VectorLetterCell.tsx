@@ -116,8 +116,8 @@ const VectorLetterCell: React.FC<VectorLetterCellProps> = ({
     return (
       <span
         style={{
-          width: `${cellWidth}mm`,
-          height: `${cellHeight}mm`,
+          flex: '1 1 0',
+          height: '100%',
           display: 'inline-block',
         }}
       />
@@ -126,10 +126,11 @@ const VectorLetterCell: React.FC<VectorLetterCellProps> = ({
 
   return (
     <svg
-      width={`${cellWidth}mm`}
-      height={`${cellHeight}mm`}
       viewBox={`0 ${-cellHeight} ${cellWidth} ${cellHeight}`}
+      preserveAspectRatio="xMidYMid meet"
       style={{
+        flex: '1 1 0',
+        height: '100%',
         display: 'block',
         overflow: 'visible',
       }}

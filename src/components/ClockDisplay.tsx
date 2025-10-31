@@ -222,10 +222,13 @@ const CategorizedLetterGrid: React.FC<CategorizedLetterGridProps> = ({ layout, a
   
   return (
     <div 
-      className="inline-block border-2 border-gray-300 p-4 bg-black"
+      className="inline-block border-2 border-gray-300 p-2 sm:p-4 bg-black w-full max-w-full"
+      style={{
+        aspectRatio: `${layout.gridWidth} / ${layout.gridHeight}`,
+      }}
     >
       {grid.map((row, rowIndex) => (
-        <div key={rowIndex} className="flex" style={{ gap: '0mm', marginBottom: '0mm' }}>
+        <div key={rowIndex} className="flex" style={{ gap: '0', marginBottom: '0', height: `${100 / layout.gridHeight}%` }}>
           {row.map((letter, colIndex) => {
             const isActive = activePositions.has(`${rowIndex}-${colIndex}`);
             const isEmpty = letter === ' ';
@@ -262,10 +265,13 @@ const LetterGrid: React.FC<LetterGridProps> = ({ layout, activeWords, fontSettin
   
   return (
     <div 
-      className="inline-block border-2 border-gray-300 p-4 bg-black"
+      className="inline-block border-2 border-gray-300 p-2 sm:p-4 bg-black w-full max-w-full"
+      style={{
+        aspectRatio: `${layout.gridWidth} / ${layout.gridHeight}`,
+      }}
     >
       {grid.map((row, rowIndex) => (
-        <div key={rowIndex} className="flex" style={{ gap: '0mm', marginBottom: '0mm' }}>
+        <div key={rowIndex} className="flex" style={{ gap: '0', marginBottom: '0', height: `${100 / layout.gridHeight}%` }}>
           {row.map((letter, colIndex) => {
             const isActive = activePositions.has(`${rowIndex}-${colIndex}`);
             const isEmpty = letter === ' ';
@@ -298,33 +304,37 @@ const ClockDisplay: React.FC<ClockDisplayProps> = ({
   const militaryTime = convertToMilitaryTime(hours, minutes, layout.name, layoutMetadata);
   
   return (
-    <div className="flex flex-col items-center space-y-4">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">
+    <div className="flex flex-col items-center w-full">
+      {/* Compact header */}
+      <div className="text-center mb-2 w-full">
+        <h2 className="text-lg font-bold text-gray-800 mb-1">
           {layout.name}
         </h2>
-        <p className="text-lg text-gray-600 mb-4">
+        <p className="text-sm text-gray-600">
           {militaryTime.description}
         </p>
       </div>
       
-      {layoutMetadata?.hasCategories ? (
-        <CategorizedLetterGrid 
-          layout={layout}
-          activeWordsWithCategory={militaryTime.wordsWithCategory}
-          fontSettings={fontSettings}
-          layoutMetadata={layoutMetadata}
-        />
-      ) : (
-        <LetterGrid 
-          layout={layout}
-          activeWords={militaryTime.words}
-          fontSettings={fontSettings}
-        />
-      )}
+      {/* Clock face - scales to fill width */}
+      <div className="w-full flex justify-center">
+        {layoutMetadata?.hasCategories ? (
+          <CategorizedLetterGrid 
+            layout={layout}
+            activeWordsWithCategory={militaryTime.wordsWithCategory}
+            fontSettings={fontSettings}
+            layoutMetadata={layoutMetadata}
+          />
+        ) : (
+          <LetterGrid 
+            layout={layout}
+            activeWords={militaryTime.words}
+            fontSettings={fontSettings}
+          />
+        )}
+      </div>
       
-      <div className="text-sm text-gray-500 mt-2">
-        Active words: {militaryTime.words.join(', ')}
+      <div className="text-xs text-gray-500 mt-2">
+        Active: {militaryTime.words.join(', ')}
       </div>
     </div>
   );

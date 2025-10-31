@@ -73,92 +73,68 @@ const DXFExport: React.FC<DXFExportProps> = ({ layout, fontSettings }) => {
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md border relative">
+    <div className="bg-white p-3 rounded-lg shadow-md border relative">
       {toast && (
         <div
           role="status"
-          className={`absolute right-3 top-3 px-3 py-2 rounded text-sm shadow transition-opacity ${
+          className={`absolute right-2 top-2 px-2 py-1 rounded text-xs shadow transition-opacity z-10 ${
             toast.type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
           }`}
         >
           {toast.message}
         </div>
       )}
-      <h3 className="text-lg font-semibold mb-4 text-gray-800">Export to DXF</h3>
+      <h3 className="text-sm font-semibold mb-2 text-gray-800">Export to DXF</h3>
       
-      <div className="space-y-4">
-            {/* Filename input */}
-            <div>
-              <label htmlFor="filename" className="block text-sm font-medium text-gray-700 mb-1">
-                Filename
-              </label>
-              <input
-                id="filename"
-                type="text"
-                value={filename}
-                onChange={(e) => setFilename(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter filename (without .dxf extension)"
-              />
-            </div>
+      <div className="space-y-2">
+        {/* Filename and Export in a row */}
+        <div className="flex gap-2 items-end">
+          <div className="flex-1">
+            <label htmlFor="filename" className="block text-xs font-medium text-gray-700 mb-1">
+              Filename
+            </label>
+            <input
+              id="filename"
+              type="text"
+              value={filename}
+              onChange={(e) => setFilename(e.target.value)}
+              className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+              placeholder="wordclock-grid"
+            />
+          </div>
+          
+          <button
+            onClick={handleExport}
+            disabled={isExporting || !filename.trim()}
+            className={`px-3 py-1 text-xs rounded font-medium transition-colors whitespace-nowrap ${
+              isExporting || !filename.trim()
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-blue-600 text-white hover:bg-blue-700'
+            }`}
+          >
+            {isExporting ? 'Exporting...' : 'Export'}
+          </button>
+        </div>
 
-            {/* Test Mode Toggle */}
-            <div>
-              <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={testMode}
-                  onChange={(e) => setTestMode(e.target.checked)}
-                  className="rounded"
-                />
-                <span className="text-sm text-gray-700">
-                  Test Mode (Single Letter "A")
-                </span>
-              </label>
-              <p className="text-xs text-gray-500 mt-1">
-                {testMode 
-                  ? "Will create a single letter 'A' as vector path for testing DXF structure" 
-                  : "Will create the full word clock grid with vector font paths"
-                }
-              </p>
-            </div>
-
-        {/* Export button */}
-        <button
-          onClick={handleExport}
-          disabled={isExporting || !filename.trim()}
-          className={`w-full py-2 px-4 rounded-md font-medium transition-colors ${
-            isExporting || !filename.trim()
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-blue-600 text-white hover:bg-blue-700'
-          }`}
-        >
-          {isExporting ? 'Exporting...' : 'Export DXF'}
-        </button>
-
-        {/* Info text */}
-        <p className="text-xs text-gray-500">
-          This will export the current grid layout as a DXF file for use in CAD programs like Fusion 360.
-          <span className="block mt-1 text-gray-600">
-            Font: {mapFontFamilyToFontName(fontSettings.family)} | 
-            Letter margin: {(fontSettings.letterPaddingPercent*100).toFixed(2)}% per side | 
-            Spacing: {fontSettings.cellSpacingX}×{fontSettings.cellSpacingY} mm
+        {/* Test Mode Toggle - Compact */}
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={testMode}
+            onChange={(e) => setTestMode(e.target.checked)}
+            className="w-3 h-3 rounded"
+          />
+          <span className="text-xs text-gray-700">
+            Test Mode (single letter)
           </span>
-          {fontSettings.useVectorPaths && (
-            <span className="block mt-1 text-blue-600">
-              ✓ Using vector font paths for precise laser cutting
-            </span>
-          )}
-          {fontSettings.addBorder && (
-            <span className="block mt-1 text-gray-600">
-              ✓ Border will be included
-            </span>
-          )}
-          {fontSettings.addGridLines && (
-            <span className="block mt-1 text-gray-600">
-              ✓ Grid lines will be included
-            </span>
-          )}
+        </label>
+
+        {/* Compact info */}
+        <p className="text-xs text-gray-500 leading-tight">
+          {mapFontFamilyToFontName(fontSettings.family)} • {fontSettings.cellSpacingX}×{fontSettings.cellSpacingY}mm
+          {fontSettings.useVectorPaths && ' • Vector'}
+          {fontSettings.addBorder && ' • Border'}
+          {fontSettings.addGridLines && ' • Grid'}
         </p>
       </div>
     </div>

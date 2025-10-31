@@ -33,113 +33,101 @@ const TimeControls: React.FC<TimeControlsProps> = ({ timeSettings, onTimeChange,
   const minuteLabel = isIndividualMinutes ? "Minutes (individual)" : "Minutes (5-minute intervals)";
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">Time Settings</h3>
+    <div className="bg-white p-3 rounded-lg shadow-md">
+      {/* Header with selected time */}
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-semibold text-gray-800">Time Settings</h3>
+        <div className="font-mono text-lg font-bold text-blue-600">
+          {timeSettings.hours.toString().padStart(2, '0')}:
+          {timeSettings.minutes.toString().padStart(2, '0')}
+        </div>
+      </div>
       
-      <div className="space-y-4">
+      {/* Compact controls in a flex row that wraps */}
+      <div className="flex flex-wrap gap-3 items-center">
         {/* Current Time Toggle */}
-        <div className="flex items-center space-x-3">
-          <label className="flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              checked={timeSettings.useCurrentTime}
-              onChange={(e) => handleCurrentTimeToggle(e.target.checked)}
-              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
-            />
-            <span className="ml-2 text-sm font-medium text-gray-700">
-              Use Current Time
-            </span>
+        <label className="flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            checked={timeSettings.useCurrentTime}
+            onChange={(e) => handleCurrentTimeToggle(e.target.checked)}
+            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+          />
+          <span className="ml-2 text-xs font-medium text-gray-700">
+            Current Time
+          </span>
+        </label>
+
+        {/* Hours Control */}
+        <div className={`flex items-center gap-1 ${timeSettings.useCurrentTime ? 'opacity-50 pointer-events-none' : ''}`}>
+          <label className="text-xs text-gray-600 mr-1">Hours:</label>
+          <button
+            onClick={() => handleHoursChange(Math.max(0, timeSettings.hours - 1))}
+            className="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-xs"
+            disabled={timeSettings.useCurrentTime}
+          >
+            -
+          </button>
+          <select
+            value={timeSettings.hours}
+            onChange={(e) => handleHoursChange(parseInt(e.target.value))}
+            disabled={timeSettings.useCurrentTime}
+            className="px-2 py-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+          >
+            {hourOptions.map(hour => (
+              <option key={hour} value={hour}>
+                {hour.toString().padStart(2, '0')}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={() => handleHoursChange(Math.min(23, timeSettings.hours + 1))}
+            className="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-xs"
+            disabled={timeSettings.useCurrentTime}
+          >
+            +
+          </button>
+        </div>
+
+        {/* Minutes Control */}
+        <div className={`flex items-center gap-1 ${timeSettings.useCurrentTime ? 'opacity-50 pointer-events-none' : ''}`}>
+          <label className="text-xs text-gray-600 mr-1">
+            Min{isIndividualMinutes ? '' : ' (5m)'}:
           </label>
-        </div>
-
-        {/* Manual Time Controls */}
-        <div className={`space-y-3 ${timeSettings.useCurrentTime ? 'opacity-50 pointer-events-none' : ''}`}>
-          {/* Hours */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Hours (24-hour format)
-            </label>
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => handleHoursChange(Math.max(0, timeSettings.hours - 1))}
-                className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm font-medium"
-                disabled={timeSettings.useCurrentTime}
-              >
-                -
-              </button>
-              <select
-                value={timeSettings.hours}
-                onChange={(e) => handleHoursChange(parseInt(e.target.value))}
-                disabled={timeSettings.useCurrentTime}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                {hourOptions.map(hour => (
-                  <option key={hour} value={hour}>
-                    {hour.toString().padStart(2, '0')}
-                  </option>
-                ))}
-              </select>
-              <button
-                onClick={() => handleHoursChange(Math.min(23, timeSettings.hours + 1))}
-                className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm font-medium"
-                disabled={timeSettings.useCurrentTime}
-              >
-                +
-              </button>
-            </div>
-          </div>
-
-          {/* Minutes */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {minuteLabel}
-            </label>
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => {
-                  const currentIndex = minuteOptions.indexOf(timeSettings.minutes);
-                  const newIndex = Math.max(0, currentIndex - 1);
-                  handleMinutesChange(minuteOptions[newIndex]);
-                }}
-                className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm font-medium"
-                disabled={timeSettings.useCurrentTime}
-              >
-                -
-              </button>
-              <select
-                value={timeSettings.minutes}
-                onChange={(e) => handleMinutesChange(parseInt(e.target.value))}
-                disabled={timeSettings.useCurrentTime}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                {minuteOptions.map(minute => (
-                  <option key={minute} value={minute}>
-                    {minute.toString().padStart(2, '0')}
-                  </option>
-                ))}
-              </select>
-              <button
-                onClick={() => {
-                  const currentIndex = minuteOptions.indexOf(timeSettings.minutes);
-                  const newIndex = Math.min(minuteOptions.length - 1, currentIndex + 1);
-                  handleMinutesChange(minuteOptions[newIndex]);
-                }}
-                className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm font-medium"
-                disabled={timeSettings.useCurrentTime}
-              >
-                +
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Current Time Display */}
-        <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
-          <div className="font-medium">Selected Time:</div>
-          <div className="font-mono text-lg">
-            {timeSettings.hours.toString().padStart(2, '0')}:
-            {timeSettings.minutes.toString().padStart(2, '0')}
-          </div>
+          <button
+            onClick={() => {
+              const currentIndex = minuteOptions.indexOf(timeSettings.minutes);
+              const newIndex = Math.max(0, currentIndex - 1);
+              handleMinutesChange(minuteOptions[newIndex]);
+            }}
+            className="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-xs"
+            disabled={timeSettings.useCurrentTime}
+          >
+            -
+          </button>
+          <select
+            value={timeSettings.minutes}
+            onChange={(e) => handleMinutesChange(parseInt(e.target.value))}
+            disabled={timeSettings.useCurrentTime}
+            className="px-2 py-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+          >
+            {minuteOptions.map(minute => (
+              <option key={minute} value={minute}>
+                {minute.toString().padStart(2, '0')}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={() => {
+              const currentIndex = minuteOptions.indexOf(timeSettings.minutes);
+              const newIndex = Math.min(minuteOptions.length - 1, currentIndex + 1);
+              handleMinutesChange(minuteOptions[newIndex]);
+            }}
+            className="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-xs"
+            disabled={timeSettings.useCurrentTime}
+          >
+            +
+          </button>
         </div>
       </div>
     </div>
